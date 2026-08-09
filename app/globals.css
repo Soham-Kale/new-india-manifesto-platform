@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand palette — Rohan Deshmukh violet */
+  --color-canvas: #faf9f6;
+  --color-surface: #ffffff;
+  --color-ink: #191817;
+  --color-muted: #6b6b6b;
+  --color-line: #e8e5df;
+
+  --color-night: #1c1330;
+  --color-night-soft: #2a1e44;
+
+  --color-accent: #6b4090;
+  --color-accent-hover: #573375;
+  --color-accent-soft: #f1ebf6;
+  --color-accent-ring: #9a6fc0;
+
+  --color-success: #1a7f4b;
+  --color-danger: #c2452f;
+  --color-warn: #a15c00;
+
+  /* Fonts (wired to next/font CSS variables in layout.tsx) */
+  --font-sans: var(--font-poppins), system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, serif;
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgba(24, 23, 21, 0.04), 0 8px 24px -12px rgba(24, 23, 21, 0.12);
+  --shadow-lift: 0 2px 4px rgba(24, 23, 21, 0.05), 0 18px 40px -16px rgba(24, 23, 21, 0.22);
+
+  /* Motion */
+  --animate-fade-up: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-in: fade-in 0.35s ease-out;
+  --animate-scale-in: scale-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-slide-in: slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  *:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-canvas),
+      0 0 0 4px color-mix(in srgb, var(--color-accent) 55%, transparent);
+    border-radius: 4px;
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}

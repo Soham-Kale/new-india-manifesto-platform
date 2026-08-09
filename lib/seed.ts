@@ -463,6 +463,25 @@ export function SEED(): StoreShape {
       { id: 'pl_8', name: 'Aisha Sayyed', email: 'aisha.s@example.in', phone: '+91 91000 10008', district: 'other', commitment: ['spread'], consentCampaignUpdates: true, createdAt: '2026-07-14T12:00:00.000Z' },
     ],
 
-    matches: [],
+    matches: [
+      {
+        id: 'mt_1',
+        founderApplicationId: 'fa_4', // Bhu Solar (growth, deeptech)
+        counterpartUserId: 'usr_i2', // Vikram Shetty (Sahyadri Ventures)
+        type: 'investor',
+        status: 'admin_approved',
+        initiatedBy: 'investor',
+        createdAt: '2026-07-20T09:00:00.000Z',
+      },
+      {
+        id: 'mt_2',
+        founderApplicationId: 'fa_1', // Shivar Dairy (agritech)
+        counterpartUserId: 'usr_m1', // Dr. Meera Kulkarni
+        type: 'mentor',
+        status: 'interest',
+        initiatedBy: 'mentor',
+        createdAt: '2026-07-21T09:00:00.000Z',
+      },
+    ],
   }
 }

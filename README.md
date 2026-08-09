@@ -25,6 +25,23 @@ npm run dev      # http://localhost:3000
 npm run build && npm start   # production build
 ```
 
+## Razorpay dummy payment
+
+The book checkout is wired to **real Razorpay Checkout in TEST MODE**. Copy `.env.example` to
+`.env.local` and set `NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_…` (a Razorpay **test** key id) to open the
+actual Razorpay popup — test cards only, no real money, and no server-side order/signature verification
+(that's backend, later). With **no key set** (the default), checkout falls back to a built-in simulated
+success so the demo always works offline. Either way a paid `BookOrder` is recorded and shows up in
+**Admin › Book Orders**.
+
+## Matching & the contact-gate (V2, dummy)
+
+Mentors/investors see **limited** founder profiles (no email/phone) — only founders who consented to be
+shared, filtered to the viewer's sectors/stage. **Express interest** creates a match (`interest`); an
+admin approves it in **Admin › Matches** (`admin_approved`), which **unlocks the founder's contact** in
+that mentor/investor's dashboard. Logic lives in `lib/matching.ts` (`isContactRevealed`) and the match
+CRUD in `lib/MockDataProvider.tsx`.
+
 ## Demo mode (no login required)
 
 A floating **Demo** widget (bottom-right) simulates authentication. Switch the active identity between
@@ -44,7 +61,9 @@ and **Reset demo data** to restore the seeded state. There is also a simulated e
 | `/apply/founder` | Multi-step founder application (with dedup) |
 | `/apply/mentor` · `/apply/investor` · `/apply/expert` | Role applications (pending approval) |
 | `/dashboard` | Applicant view — shows **Received → Under review** only, never internal status |
-| `/admin` | Control room: tabs, search, status changes, CSV export (admin-gated) |
+| `/mentor` | Mentor dashboard — consent- & sector-filtered founder cards, Express interest, contact-gated |
+| `/investor` | Investor dashboard — admin-curated deal flow, Express interest, contact-gated |
+| `/admin` | Control room: Overview funnel + tabs (incl. **Matches** approve→reveal), search, status, CSV |
 | `/login` | Simulated email-OTP sign-in |
 | `/privacy` · `/terms` · `/shipping` · `/refund` | Legal (DPDP / Razorpay) |
 

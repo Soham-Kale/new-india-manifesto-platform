@@ -45,6 +45,8 @@ interface Form {
   teamSize: string
   lookingFor: LookingFor[]
   capitalContext: string
+  links: string
+  pitchDeckName: string
   videoUrl: string | null
   videoDuration: number | null
   consentShareWithMentors: boolean
@@ -66,6 +68,8 @@ const INITIAL: Form = {
   teamSize: '',
   lookingFor: [],
   capitalContext: '',
+  links: '',
+  pitchDeckName: '',
   videoUrl: null,
   videoDuration: null,
   consentShareWithMentors: false,
@@ -166,7 +170,7 @@ export default function FounderWizard() {
         teamSize: Number(form.teamSize) || 1,
         lookingFor: form.lookingFor,
         capitalContext: form.capitalContext.trim(),
-        links: '',
+        links: form.links.trim(),
         videoUrl: form.videoUrl,
         videoDuration: form.videoDuration,
         consentShareWithMentors: form.consentShareWithMentors,
@@ -283,6 +287,7 @@ export default function FounderWizard() {
             <FormInput label="Team size" name="teamSize" type="number" min={1} hint="Roughly how many people are working on this?" value={form.teamSize} onChange={(e) => set('teamSize', e.target.value)} />
             <MultiSelectField label="What support are you looking for?" name="lookingFor" required options={LOOKING_FOR} values={form.lookingFor} onChange={(v) => set('lookingFor', v as LookingFor[])} error={errors.lookingFor} />
             <FormTextarea label="What would you use that support for?" name="capitalContext" hint="Not an amount — just what support would help you do next." rows={3} value={form.capitalContext} onChange={(e) => set('capitalContext', e.target.value)} />
+            <FormInput label="Website / socials" name="links" hint="Optional — a link where we can learn more." value={form.links} onChange={(e) => set('links', e.target.value)} />
           </div>
           <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
             <Button variant="secondary" onClick={() => goToStep(0)} fullWidthOnMobile>
@@ -366,6 +371,27 @@ export default function FounderWizard() {
               </div>
             </div>
           )}
+
+          {/* Optional pitch deck (dummy — filename only, no real upload yet) */}
+          <div className="mt-6 rounded-2xl border border-line bg-surface p-4">
+            <p className="text-sm font-medium text-ink">Pitch deck (optional)</p>
+            <p className="mt-0.5 text-xs text-muted">PDF or slides — helps us understand your plan.</p>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-canvas px-4 py-2.5 text-sm font-medium text-ink transition hover:border-ink/40">
+                <Upload className="h-4 w-4" aria-hidden="true" />
+                {form.pitchDeckName ? 'Replace file' : 'Choose file'}
+                <input
+                  type="file"
+                  accept=".pdf,.ppt,.pptx,.key"
+                  className="sr-only"
+                  onChange={(e) => set('pitchDeckName', e.target.files?.[0]?.name ?? '')}
+                />
+              </label>
+              {form.pitchDeckName && (
+                <span className="text-sm text-muted">{form.pitchDeckName}</span>
+              )}
+            </div>
+          </div>
 
           <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
             <Button variant="secondary" onClick={() => goToStep(1)} fullWidthOnMobile>

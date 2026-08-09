@@ -16,6 +16,7 @@ import type {
   ExpertProfile,
   BookOrder,
   Pledge,
+  Match,
   InternalStatus,
   ApprovalStatus,
   FulfillmentStatus,
@@ -29,8 +30,12 @@ type NewExpert = Omit<ExpertProfile, 'id' | 'createdAt' | 'approvalStatus'>
 type NewOrder = Omit<
   BookOrder,
   'id' | 'createdAt' | 'paymentGateway' | 'paymentId' | 'paymentStatus' | 'fulfillmentStatus'
->
+> & { paymentId?: string }
 type NewPledge = Omit<Pledge, 'id' | 'createdAt'>
+type NewMatch = Pick<
+  Match,
+  'founderApplicationId' | 'counterpartUserId' | 'type' | 'initiatedBy'
+>
 
 type CreateResult<T> =
   | { ok: true; record: T }
@@ -53,6 +58,8 @@ interface MockDataContextValue {
     status: ApprovalStatus,
   ) => void
   setOrderFulfillment: (id: string, status: FulfillmentStatus) => void
+  createMatch: (input: NewMatch) => Match
+  setMatchStatus: (id: string, status: Match['status']) => void
   reset: () => void
 }
 
@@ -138,7 +145,7 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
       ...input,
       id: newId('bo'),
       paymentGateway: 'razorpay',
-      paymentId: newId('pay'),
+      paymentId: input.paymentId ?? newId('pay'),
       paymentStatus: 'paid',
       fulfillmentStatus: input.format === 'ebook' ? 'delivered' : 'pending',
       createdAt: nowIso(),
@@ -191,6 +198,32 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
     }))
   }, [])
 
+  const createMatch = useCallback((input: NewMatch): Match => {
+    // Guard against a duplicate interest for the same founder + counterpart + type.
+    const existing = store.matches.find(
+      (m) =>
+        m.founderApplicationId === input.founderApplicationId &&
+        m.counterpartUserId === input.counterpartUserId &&
+        m.type === input.type,
+    )
+    if (existing) return existing
+    const record: Match = {
+      ...input,
+      id: newId('mt'),
+      status: 'interest',
+      createdAt: nowIso(),
+    }
+    setStore((s) => ({ ...s, matches: [record, ...s.matches] }))
+    return record
+  }, [store.matches])
+
+  const setMatchStatus = useCallback((id: string, status: Match['status']) => {
+    setStore((s) => ({
+      ...s,
+      matches: s.matches.map((m) => (m.id === id ? { ...m, status } : m)),
+    }))
+  }, [])
+
   const reset = useCallback(() => setStore(resetStore()), [])
 
   return (
@@ -208,6 +241,8 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
         setFounderStatus,
         setApprovalStatus,
         setOrderFulfillment,
+        createMatch,
+        setMatchStatus,
         reset,
       }}
     >

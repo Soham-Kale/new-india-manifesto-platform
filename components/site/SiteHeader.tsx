@@ -93,6 +93,15 @@ export default function SiteHeader() {
               Admin
             </Link>
           )}
+          {(identity === 'mentor' || identity === 'investor') && (
+            <Link
+              href={identity === 'mentor' ? '/mentor' : '/investor'}
+              className="flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-accent"
+            >
+              <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+              Dashboard
+            </Link>
+          )}
 
           <Link
             href="/apply/founder"
@@ -149,6 +158,15 @@ export default function SiteHeader() {
                 className="rounded-lg px-2 py-2.5 text-sm font-medium text-accent hover:bg-accent-soft"
               >
                 Admin control room
+              </Link>
+            )}
+            {(identity === 'mentor' || identity === 'investor') && (
+              <Link
+                href={identity === 'mentor' ? '/mentor' : '/investor'}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-2 py-2.5 text-sm font-medium text-accent hover:bg-accent-soft"
+              >
+                My dashboard
               </Link>
             )}
           </nav>

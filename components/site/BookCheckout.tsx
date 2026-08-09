@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { CheckCircle2, Download, Loader2, ShoppingCart, X, Truck } from 'lucide-react'
 import type { BookFormat } from '@/lib/types'
 import { useMockData } from '@/lib/MockDataProvider'
+import { loadRazorpay, getRazorpayKey } from '@/lib/razorpay'
 import { isEmail, isPhone, req } from '@/lib/validation'
 import Button from '@/components/ui/Button'
 import FormInput from '@/components/ui/FormInput'
@@ -40,21 +41,54 @@ export default function BookCheckout() {
     return Object.keys(e).length === 0
   }
 
-  const pay = () => {
+  const recordOrder = (paymentId?: string) => {
+    addBookOrder({
+      buyerName,
+      buyerEmail,
+      buyerPhone,
+      format,
+      quantity,
+      amount,
+      shippingAddress: format === 'physical' ? address : null,
+      consentCampaignUpdates: optIn,
+      paymentId,
+    })
+  }
+
+  const pay = async () => {
     if (!validate()) return
     setPhase('paying')
-    // Simulated Razorpay — no real payment in this frontend phase.
+
+    const key = getRazorpayKey()
+    if (key) {
+      // Real Razorpay Checkout in TEST MODE (test cards, no real money).
+      const ok = await loadRazorpay()
+      if (ok && window.Razorpay) {
+        const rzp = new window.Razorpay({
+          key,
+          amount: amount * 100,
+          currency: 'INR',
+          name: 'The New India Manifesto',
+          description: `${format === 'ebook' ? 'eBook' : 'Physical book'} × ${quantity}`,
+          prefill: { name: buyerName, email: buyerEmail, contact: buyerPhone },
+          notes: { format },
+          theme: { color: '#6b4090' },
+          handler: (resp) => {
+            recordOrder(resp.razorpay_payment_id)
+            setPhase('done')
+          },
+          modal: { ondismiss: () => setPhase('form') },
+        })
+        rzp.on('payment.failed', () => setPhase('form'))
+        rzp.open()
+        return
+      }
+      // Script failed to load → fall through to the simulated path.
+    }
+
+    // Simulated fallback — no key configured (default in this demo).
     window.setTimeout(() => {
-      addBookOrder({
-        buyerName,
-        buyerEmail,
-        buyerPhone,
-        format,
-        quantity,
-        amount,
-        shippingAddress: format === 'physical' ? address : null,
-        consentCampaignUpdates: optIn,
-      })
+      recordOrder()
       setPhase('done')
     }, 1500)
   }

@@ -93,6 +93,13 @@ export const APPROVAL_STATUSES: Option<ApprovalStatus>[] = [
   { value: 'rejected', label: 'Rejected' },
 ]
 
+export const MATCH_STATUSES: Option<'interest' | 'admin_approved' | 'connected' | 'declined'>[] = [
+  { value: 'interest', label: 'Interest' },
+  { value: 'admin_approved', label: 'Approved' },
+  { value: 'connected', label: 'Connected' },
+  { value: 'declined', label: 'Declined' },
+]
+
 export const PAYMENT_STATUSES: Option<PaymentStatus>[] = [
   { value: 'created', label: 'Created' },
   { value: 'paid', label: 'Paid' },

@@ -10,6 +10,7 @@ import {
   INTERNAL_STATUSES,
   APPROVAL_STATUSES,
   FULFILLMENT_STATUSES,
+  MATCH_STATUSES,
   labelDistrict,
   labelSector,
   labelStage,
@@ -21,18 +22,21 @@ import type {
   InternalStatus,
   ApprovalStatus,
   FulfillmentStatus,
+  Match,
 } from '@/lib/types'
 import Button from '@/components/ui/Button'
 
-type Tab = 'founders' | 'mentors' | 'investors' | 'experts' | 'pledges' | 'orders'
+type Tab = 'overview' | 'founders' | 'mentors' | 'investors' | 'experts' | 'pledges' | 'orders' | 'matches'
 
 const TABS: { id: Tab; label: string }[] = [
+  { id: 'overview', label: 'Overview' },
   { id: 'founders', label: 'Founders' },
   { id: 'mentors', label: 'Mentors' },
   { id: 'investors', label: 'Investors' },
   { id: 'experts', label: 'Experts' },
   { id: 'pledges', label: 'Pledges' },
   { id: 'orders', label: 'Book Orders' },
+  { id: 'matches', label: 'Matches' },
 ]
 
 function matches(q: string, ...fields: (string | undefined)[]): boolean {
@@ -49,22 +53,38 @@ export default function AdminRoom() {
     setFounderStatus,
     setApprovalStatus,
     setOrderFulfillment,
+    setMatchStatus,
     reset,
   } = useMockData()
-  const [tab, setTab] = useState<Tab>('founders')
+  const [tab, setTab] = useState<Tab>('overview')
   const [q, setQ] = useState('')
 
   const counts = useMemo(
     () => ({
+      overview: store.founderApplications.length + store.pledges.length,
       founders: store.founderApplications.length,
       mentors: store.mentorProfiles.length,
       investors: store.investorProfiles.length,
       experts: store.expertProfiles.length,
       pledges: store.pledges.length,
       orders: store.bookOrders.length,
+      matches: store.matches.length,
     }),
     [store],
   )
+
+  // Look up a founder's venture + a match counterpart's display name.
+  const founderLabel = (id: string) => {
+    const a = store.founderApplications.find((f) => f.id === id)
+    return a ? a.ventureName || `${a.fullName} (idea)` : id
+  }
+  const counterpartLabel = (m: Match) => {
+    const mentor = store.mentorProfiles.find((p) => p.userId === m.counterpartUserId)
+    if (mentor) return `${mentor.fullName} · mentor`
+    const inv = store.investorProfiles.find((p) => p.userId === m.counterpartUserId)
+    if (inv) return `${inv.fullName} · investor`
+    return m.counterpartUserId
+  }
 
   if (!ready || !dataReady) {
     return <div className="p-10 text-center text-muted">Loading…</div>
@@ -121,8 +141,10 @@ export default function AdminRoom() {
       downloadCsv('experts.csv', store.expertProfiles.map((e) => ({ name: e.fullName, email: e.email, domain: e.domain, contribution: e.contribution.join('; '), status: e.approvalStatus })))
     else if (tab === 'pledges')
       downloadCsv('pledges.csv', store.pledges.map((p) => ({ name: p.name, email: p.email, phone: p.phone, district: labelDistrict(p.district), commitment: p.commitment.join('; ') })))
-    else
+    else if (tab === 'orders')
       downloadCsv('book-orders.csv', store.bookOrders.map((o) => ({ buyer: o.buyerName, email: o.buyerEmail, format: o.format, qty: o.quantity, amount: o.amount, payment: o.paymentStatus, fulfillment: o.fulfillmentStatus })))
+    else if (tab === 'matches')
+      downloadCsv('matches.csv', store.matches.map((m) => ({ founder: founderLabel(m.founderApplicationId), counterpart: counterpartLabel(m), type: m.type, initiated_by: m.initiatedBy, status: m.status, created: m.createdAt })))
   }
 
   return (
@@ -178,23 +200,28 @@ export default function AdminRoom() {
           ))}
         </div>
 
+        {tab === 'overview' && <Overview store={store} />}
+
         {/* Toolbar */}
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search…"
-              className="w-full rounded-xl border border-line bg-surface py-2.5 pl-9 pr-3 text-sm text-ink placeholder:text-muted/60 focus:border-ink"
-            />
+        {tab !== 'overview' && (
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search…"
+                className="w-full rounded-xl border border-line bg-surface py-2.5 pl-9 pr-3 text-sm text-ink placeholder:text-muted/60 focus:border-ink"
+              />
+            </div>
+            <Button variant="secondary" onClick={exportCurrent}>
+              <Download className="h-4 w-4" aria-hidden="true" /> Export CSV
+            </Button>
           </div>
-          <Button variant="secondary" onClick={exportCurrent}>
-            <Download className="h-4 w-4" aria-hidden="true" /> Export CSV
-          </Button>
-        </div>
+        )}
 
         {/* Table */}
+        {tab !== 'overview' && (
         <div className="mt-4 overflow-x-auto rounded-2xl border border-line bg-surface shadow-card">
           {tab === 'founders' && (
             <Table head={['Venture', 'Applicant', 'District', 'Sector · Stage', 'Consent', 'Status']}>
@@ -324,6 +351,96 @@ export default function AdminRoom() {
                 ))}
             </Table>
           )}
+
+          {tab === 'matches' && (
+            <Table head={['Founder', 'Counterpart', 'Type', 'Initiated by', 'Status']}>
+              {store.matches.length === 0 && (
+                <tr className="border-t border-line">
+                  <Td className="text-muted">No matches yet. Mentors/investors create these by expressing interest.</Td>
+                </tr>
+              )}
+              {store.matches
+                .filter((m) => matches(q, founderLabel(m.founderApplicationId), counterpartLabel(m)))
+                .map((m) => (
+                  <tr key={m.id} className="border-t border-line align-top">
+                    <Td className="font-medium text-ink">{founderLabel(m.founderApplicationId)}</Td>
+                    <Td>{counterpartLabel(m)}</Td>
+                    <Td className="capitalize">{m.type}</Td>
+                    <Td className="capitalize text-muted">{m.initiatedBy}</Td>
+                    <Td>
+                      <StatusSelect
+                        value={m.status}
+                        options={MATCH_STATUSES}
+                        onChange={(v) => setMatchStatus(m.id, v as Match['status'])}
+                      />
+                    </Td>
+                  </tr>
+                ))}
+            </Table>
+          )}
+        </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function Overview({ store }: { store: import('@/lib/types').StoreShape }) {
+  const founders = store.founderApplications
+  const shortlisted = founders.filter((a) => ['shortlisted', 'matched'].includes(a.internalStatus)).length
+  const matched = founders.filter((a) => a.internalStatus === 'matched').length
+  const paidOrders = store.bookOrders.filter((o) => o.paymentStatus === 'paid').length
+  const revenue = store.bookOrders
+    .filter((o) => o.paymentStatus === 'paid')
+    .reduce((sum, o) => sum + o.amount, 0)
+
+  const tiles = [
+    { label: 'Pledges', value: store.pledges.length },
+    { label: 'Founder applications', value: founders.length },
+    { label: 'Shortlisted', value: shortlisted },
+    { label: 'Matched', value: matched },
+    { label: 'Mentors / Investors / Experts', value: store.mentorProfiles.length + store.investorProfiles.length + store.expertProfiles.length },
+    { label: 'Book orders (paid)', value: paidOrders },
+    { label: 'Book revenue', value: `₹${revenue.toLocaleString('en-IN')}` },
+    { label: 'Active matches', value: store.matches.length },
+  ]
+
+  // Simple funnel bars (pledge → apply → shortlist → match).
+  const funnel = [
+    { label: 'Pledged', n: store.pledges.length },
+    { label: 'Applied (founders)', n: founders.length },
+    { label: 'Shortlisted', n: shortlisted },
+    { label: 'Matched', n: matched },
+  ]
+  const max = Math.max(...funnel.map((f) => f.n), 1)
+
+  return (
+    <div className="mt-6 space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {tiles.map((t) => (
+          <div key={t.label} className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
+            <p className="font-serif text-3xl font-medium text-ink">{t.value}</p>
+            <p className="mt-1 text-xs text-muted">{t.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-2xl border border-line bg-surface p-6 shadow-card">
+        <p className="text-sm font-medium text-ink">Funnel</p>
+        <div className="mt-4 space-y-3">
+          {funnel.map((f) => (
+            <div key={f.label} className="flex items-center gap-3">
+              <span className="w-40 shrink-0 text-sm text-muted">{f.label}</span>
+              <div className="h-6 flex-1 overflow-hidden rounded-full bg-line">
+                <div
+                  className="flex h-full items-center justify-end rounded-full bg-accent px-2 text-xs font-medium text-canvas transition-all"
+                  style={{ width: `${Math.max((f.n / max) * 100, 8)}%` }}
+                >
+                  {f.n}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

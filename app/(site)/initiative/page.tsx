@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Target,
 } from 'lucide-react'
+import { JourneyTimeline } from '@/components/site/sections'
 
 export const metadata: Metadata = {
   title: 'The Initiative — A Nation Waiting To Be Incubated',
@@ -126,6 +127,9 @@ export default function InitiativePage() {
           </div>
         </div>
       </section>
+
+      {/* Journey timeline */}
+      <JourneyTimeline />
 
       {/* Role lanes */}
       <section className="border-b border-line bg-surface/60">

@@ -1,5 +1,12 @@
 import type { Metadata } from 'next'
-import { AboutStory, WorkGrid, VisionBand, InvitationCTA } from '@/components/site/sections'
+import {
+  AboutStory,
+  AuthorVideo,
+  WorkGrid,
+  VisionBand,
+  ContactSection,
+  InvitationCTA,
+} from '@/components/site/sections'
 
 export const metadata: Metadata = {
   title: 'About Rohan Deshmukh — The New India Manifesto',
@@ -15,7 +22,7 @@ export default function RohanPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
             About Rohan
           </p>
-          <h1 className="mt-3 max-w-3xl font-serif text-4xl font-medium leading-tight tracking-tight text-ink sm:text-5xl">
+          <h1 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight tracking-tight text-ink sm:text-5xl">
             A builder, not a politician
           </h1>
           <p className="mt-4 max-w-2xl text-muted">
@@ -25,9 +32,11 @@ export default function RohanPage() {
         </div>
       </div>
       <AboutStory />
+      <AuthorVideo />
       <VisionBand />
       <WorkGrid />
       <InvitationCTA />
+      <ContactSection />
     </>
   )
 }

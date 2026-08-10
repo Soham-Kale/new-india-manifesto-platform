@@ -1,44 +1,52 @@
 @import "tailwindcss";
 
 @theme {
-  /* ---- Neutrals (warm, plum-tinted for a premium editorial feel) ---- */
-  --color-canvas: #faf8f4; /* warm ivory paper */
+  /* ============================================================
+     Palette — campaign look inspired by the Politian reference:
+     deep maroon base + crimson accent on warm cream.
+     ============================================================ */
+
+  /* ---- Neutrals (warm cream paper, maroon-charcoal ink) ---- */
+  --color-canvas: #f5efe6;      /* warm cream */
   --color-surface: #ffffff;
-  --color-surface-2: #f5f1ec; /* subtle alternate section background */
-  --color-ink: #211b2e; /* deep plum-charcoal — high-contrast body text */
-  --color-muted: #6b6577; /* secondary text */
-  --color-subtle: #9a94a6; /* tertiary text / captions */
-  --color-line: #e8e3ee; /* soft violet-tinted hairline */
-  --color-line-strong: #d9d3e2;
+  --color-surface-2: #efe7db;   /* alternate section band */
+  --color-ink: #241316;         /* deep maroon-charcoal — primary text */
+  --color-muted: #6e5a5f;       /* secondary text */
+  --color-subtle: #9a8a8e;      /* tertiary / captions */
+  --color-line: #e7dccf;        /* warm hairline */
+  --color-line-strong: #d8c9b8;
 
-  /* ---- Dark sections ---- */
-  --color-night: #171025;
-  --color-night-soft: #241934;
+  /* ---- Dark sections (deep maroon, like the Politian hero) ---- */
+  --color-night: #2a1216;
+  --color-night-soft: #3b1a20;
 
-  /* ---- Brand: violet (primary) ---- */
-  --color-accent: #6d3f97;
-  --color-accent-hover: #58307c;
-  --color-accent-soft: #f3edfa;
-  --color-accent-ring: #a982cf;
+  /* ---- Brand: crimson (primary action colour) ---- */
+  --color-accent: #cc1f43;
+  --color-accent-hover: #a81833;
+  --color-accent-soft: #fbe9ee;
+  --color-accent-ring: #e4728c;
 
-  /* ---- Brand: gold (secondary — used sparingly for warmth/premium) ---- */
-  --color-gold: #bf913a;
-  --color-gold-hover: #a67d2c;
-  --color-gold-soft: #f8f1e2;
+  /* ---- Marigold (warm secondary accent, harmonises with the book) ---- */
+  --color-gold: #cf9a3a;
+  --color-gold-hover: #b5842b;
+  --color-gold-soft: #f8efd9;
 
   /* ---- Status ---- */
-  --color-success: #1a7f4b;
-  --color-danger: #c2452f;
-  --color-warn: #a15c00;
+  --color-success: #2f7a4a;
+  --color-danger: #c2412c;
+  --color-warn: #b26a00;
 
-  /* ---- Fonts (wired to next/font in layout.tsx) ---- */
+  /* ---- Fonts (wired to next/font in layout.tsx) ----
+     Poppins for UI + display (heavy/tight for the campaign headline),
+     Fraunces (serif) for editorial book/author copy. */
   --font-sans: var(--font-poppins), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-poppins), system-ui, sans-serif;
   --font-serif: var(--font-fraunces), Georgia, serif;
 
-  /* ---- Elevation (soft, layered, plum-tinted) ---- */
-  --shadow-card: 0 1px 2px rgba(33, 27, 46, 0.04), 0 10px 30px -14px rgba(33, 27, 46, 0.14);
-  --shadow-lift: 0 2px 6px rgba(33, 27, 46, 0.06), 0 24px 50px -18px rgba(33, 27, 46, 0.26);
-  --shadow-glow: 0 10px 30px -8px rgba(109, 63, 151, 0.45);
+  /* ---- Elevation (soft, maroon-tinted) ---- */
+  --shadow-card: 0 1px 2px rgba(42, 18, 22, 0.05), 0 12px 28px -16px rgba(42, 18, 22, 0.22);
+  --shadow-lift: 0 2px 6px rgba(42, 18, 22, 0.07), 0 26px 50px -20px rgba(42, 18, 22, 0.30);
+  --shadow-glow: 0 12px 30px -10px rgba(204, 31, 67, 0.4);
 
   /* ---- Motion ---- */
   --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -80,11 +88,10 @@
     background-color: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-feature-settings: "ss01", "cv01";
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 24%, transparent);
     color: var(--color-ink);
   }
 
@@ -92,22 +99,22 @@
     outline: none;
     box-shadow:
       0 0 0 2px var(--color-canvas),
-      0 0 0 4px color-mix(in srgb, var(--color-accent) 55%, transparent);
+      0 0 0 4px color-mix(in srgb, var(--color-accent) 60%, transparent);
     border-radius: 6px;
   }
 }
 
 @layer utilities {
-  /* Soft branded backdrop for hero / feature sections. */
+  /* Soft branded backdrop for hero / feature sections — crimson wash. */
   .bg-aura {
     background-image:
-      radial-gradient(60rem 40rem at 85% -10%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 60%),
-      radial-gradient(48rem 32rem at -10% 10%, color-mix(in srgb, var(--color-gold) 10%, transparent), transparent 55%);
+      radial-gradient(58rem 38rem at 88% -12%, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent 60%),
+      radial-gradient(46rem 30rem at -8% 8%, color-mix(in srgb, var(--color-gold) 12%, transparent), transparent 55%);
   }
-  /* Glow used inside the dark band. */
+  /* Glow used inside the dark maroon band. */
   .bg-night-aura {
     background-image:
-      radial-gradient(50rem 34rem at 50% -10%, color-mix(in srgb, var(--color-accent) 40%, transparent), transparent 60%);
+      radial-gradient(48rem 32rem at 50% -12%, color-mix(in srgb, var(--color-accent) 40%, transparent), transparent 62%);
   }
   .text-balance {
     text-wrap: balance;

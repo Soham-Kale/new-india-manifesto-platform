@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Check } from 'lucide-react'
 import BookCheckout from '@/components/site/BookCheckout'
+import { AuthorVideo } from '@/components/site/sections'
 
 export const metadata: Metadata = {
   title: 'The New India Manifesto — Going Beyond Possible',
@@ -30,12 +31,13 @@ const TAKEAWAYS = [
 
 export default function BookPage() {
   return (
+    <>
     <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 lg:py-20">
       <div className="grid gap-10 lg:grid-cols-[1fr_360px] lg:gap-14">
         {/* Left: content */}
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">The Book</p>
-          <h1 className="mt-3 font-serif text-4xl font-medium leading-tight tracking-tight text-ink sm:text-5xl">
+          <h1 className="mt-3 font-display text-4xl font-bold leading-tight tracking-tight text-ink sm:text-5xl">
             The New India Manifesto
           </h1>
           <p className="mt-2 text-lg text-muted">Going Beyond Possible — by Rohan Deshmukh</p>
@@ -97,5 +99,7 @@ export default function BookPage() {
         </div>
       </div>
     </div>
+    <AuthorVideo />
+    </>
   )
 }

@@ -1,6 +1,7 @@
 import {
   Hero,
   FunnelSteps,
+  CommunityEvents,
   VisionBand,
   WorkGrid,
   InvitationCTA,
@@ -11,6 +12,7 @@ export default function HomePage() {
     <>
       <Hero />
       <FunnelSteps />
+      <CommunityEvents />
       <VisionBand />
       <WorkGrid />
       <InvitationCTA />

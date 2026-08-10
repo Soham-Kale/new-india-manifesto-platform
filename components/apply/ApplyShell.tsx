@@ -8,7 +8,7 @@ export default function ApplyShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-20 border-b border-line bg-canvas/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-3.5 sm:px-8">
           <Link href="/" className="flex flex-col leading-none">
-            <span className="font-serif text-base font-semibold tracking-tight text-ink">
+            <span className="font-display text-base font-bold tracking-tight text-ink">
               Rohan Deshmukh
             </span>
             <span className="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-accent">

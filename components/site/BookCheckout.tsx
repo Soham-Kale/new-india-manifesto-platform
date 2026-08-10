@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle2, Download, Loader2, ShoppingCart, X, Truck } from 'lucide-react'
+import { CheckCircle2, Loader2, ShoppingCart, X, Truck } from 'lucide-react'
 import type { BookFormat } from '@/lib/types'
 import { useMockData } from '@/lib/MockDataProvider'
 import { loadRazorpay, getRazorpayKey } from '@/lib/razorpay'
@@ -17,7 +17,7 @@ type Phase = 'idle' | 'form' | 'paying' | 'done'
 
 export default function BookCheckout() {
   const { addBookOrder } = useMockData()
-  const [format, setFormat] = useState<BookFormat>('physical')
+  const [format] = useState<BookFormat>('physical')
   const [quantity, setQuantity] = useState(1)
   const [phase, setPhase] = useState<Phase>('idle')
 
@@ -107,25 +107,10 @@ export default function BookCheckout() {
     <div className="rounded-2xl border border-line bg-surface p-6 shadow-card">
       <h3 className="font-serif text-xl font-medium text-ink">Get your copy</h3>
 
-      {/* Format toggle */}
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        {(['physical', 'ebook'] as BookFormat[]).map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setFormat(f)}
-            className={`rounded-xl border px-4 py-3 text-left transition ${
-              format === f
-                ? 'border-accent bg-accent-soft'
-                : 'border-line hover:border-ink/30'
-            }`}
-          >
-            <span className="block text-sm font-medium capitalize text-ink">
-              {f === 'ebook' ? 'eBook' : 'Physical'}
-            </span>
-            <span className="text-xs text-muted">₹{PRICES[f]}</span>
-          </button>
-        ))}
+      {/* Physical book only */}
+      <div className="mt-4 rounded-xl border border-accent bg-accent-soft px-4 py-3">
+        <span className="block text-sm font-medium text-ink">Physical book</span>
+        <span className="text-xs text-muted">Paperback · ₹{PRICES.physical}</span>
       </div>
 
       {/* Quantity */}
@@ -179,23 +164,10 @@ export default function BookCheckout() {
                   Thank you, {buyerName.split(' ')[0]}. A confirmation has been sent to{' '}
                   {buyerEmail}.
                 </p>
-                {format === 'ebook' ? (
-                  <a
-                    href="/downloads/the-new-india-manifesto.pdf"
-                    download="The New India Manifesto - Going Beyond Possible.pdf"
-                    target="_blank"
-                    rel="noopener"
-                    className="mt-5 inline-flex items-center gap-2 rounded-xl bg-ink px-5 py-3 text-sm font-medium text-canvas transition hover:bg-accent"
-                  >
-                    <Download className="h-4 w-4" aria-hidden="true" />
-                    Download your eBook
-                  </a>
-                ) : (
-                  <p className="mt-5 flex items-center justify-center gap-2 text-sm text-muted">
-                    <Truck className="h-4 w-4 text-accent" aria-hidden="true" />
-                    Your order is in the fulfillment queue.
-                  </p>
-                )}
+                <p className="mt-5 flex items-center justify-center gap-2 text-sm text-muted">
+                  <Truck className="h-4 w-4 text-accent" aria-hidden="true" />
+                  Your order is in the fulfillment queue.
+                </p>
                 <button
                   type="button"
                   onClick={reset}

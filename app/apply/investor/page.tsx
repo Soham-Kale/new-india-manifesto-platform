@@ -42,7 +42,7 @@ export default function InvestorApplyPage() {
     const err: Record<string, string> = {}
     if (!req(f.fullName)) err.fullName = 'Please enter your name.'
     if (!isEmail(f.email)) err.email = 'Enter a valid email.'
-    if (!isPhone(f.phone)) err.phone = 'Enter a valid phone number.'
+    if (!isPhone(f.phone)) err.phone = 'Enter a valid 10-digit phone number.'
     if (!f.investorType) err.investorType = 'Select an investor type.'
     if (f.sectors.length === 0) err.sectors = 'Choose at least one sector.'
     if (f.stageFocus.length === 0) err.stageFocus = 'Choose at least one stage.'

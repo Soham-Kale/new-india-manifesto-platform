@@ -34,7 +34,7 @@ export default function BookCheckout() {
     const e: Record<string, string> = {}
     if (!req(buyerName)) e.buyerName = 'Please enter your name.'
     if (!isEmail(buyerEmail)) e.buyerEmail = 'Enter a valid email.'
-    if (!isPhone(buyerPhone)) e.buyerPhone = 'Enter a valid phone number.'
+    if (!isPhone(buyerPhone)) e.buyerPhone = 'Enter a valid 10-digit phone number.'
     if (format === 'physical' && !req(address))
       e.address = 'A shipping address is required for the physical book.'
     setErrors(e)
@@ -181,8 +181,10 @@ export default function BookCheckout() {
                 </p>
                 {format === 'ebook' ? (
                   <a
-                    href="#"
-                    onClick={(e) => e.preventDefault()}
+                    href="/downloads/the-new-india-manifesto.pdf"
+                    download="The New India Manifesto - Going Beyond Possible.pdf"
+                    target="_blank"
+                    rel="noopener"
                     className="mt-5 inline-flex items-center gap-2 rounded-xl bg-ink px-5 py-3 text-sm font-medium text-canvas transition hover:bg-accent"
                   >
                     <Download className="h-4 w-4" aria-hidden="true" />

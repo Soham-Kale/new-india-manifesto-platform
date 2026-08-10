@@ -39,7 +39,7 @@ export default function ExpertApplyPage() {
     const err: Record<string, string> = {}
     if (!req(f.fullName)) err.fullName = 'Please enter your name.'
     if (!isEmail(f.email)) err.email = 'Enter a valid email.'
-    if (!isPhone(f.phone)) err.phone = 'Enter a valid phone number.'
+    if (!isPhone(f.phone)) err.phone = 'Enter a valid 10-digit phone number.'
     if (!req(f.domain)) err.domain = 'Please enter your domain.'
     if (f.contribution.length === 0) err.contribution = 'Choose at least one way to contribute.'
     if (!minLen(f.bio, 20)) err.bio = 'Please add a short bio (20+ characters).'

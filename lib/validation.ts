@@ -1,12 +1,19 @@
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-export const PHONE_RE = /^[+]?[\d\s()-]{7,20}$/
+// An Indian mobile number: exactly 10 digits, starting 6–9.
+export const PHONE_RE = /^[6-9]\d{9}$/
 
 export function isEmail(v: string): boolean {
   return EMAIL_RE.test(v.trim())
 }
 
+/**
+ * Accepts ONLY a 10-digit Indian mobile number. Spaces, dashes and brackets
+ * are ignored, but the number itself must be exactly 10 digits (starting 6–9),
+ * so 11- and 12-digit inputs are rejected.
+ */
 export function isPhone(v: string): boolean {
-  return PHONE_RE.test(v.trim())
+  const digits = v.replace(/[\s()+-]/g, '')
+  return PHONE_RE.test(digits)
 }
 
 export function req(v: string): boolean {

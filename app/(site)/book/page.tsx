@@ -1,32 +1,31 @@
 import type { Metadata } from 'next'
-import { Star, Check } from 'lucide-react'
+import { Check } from 'lucide-react'
 import BookCheckout from '@/components/site/BookCheckout'
 
 export const metadata: Metadata = {
   title: 'The New India Manifesto — Going Beyond Possible',
   description:
-    'The New India Manifesto: Going Beyond Possible by Rohan Deshmukh. Read the synopsis and get your copy — physical or eBook.',
+    'The New India Manifesto by Rohan Deshmukh — not a biography, a manifesto. A call to India’s youth to build a self-reliant New India. Get your copy.',
 }
 
+// Actual chapters from the book.
 const CHAPTERS = [
-  'A Nation of Builders',
-  'The Rural Heartland Awakens',
-  'Enterprise as Service',
-  'The Village Venture Fund',
+  'Born in Solapur, Built for Bharat',
+  'The Lokmangal Way',
+  'The Subtle Power of Social Impact',
+  'Revolution Is Responsibility',
+  'A Hunger-Free, Educated India',
+  'The Enemy Within: Mediocrity',
+  'The Youth Manifesto',
+  'Revolution Without Violence',
   'A Nation Waiting To Be Incubated',
-  'Going Beyond Possible',
+  'Final Call',
 ]
 
-const TESTIMONIALS = [
-  {
-    quote:
-      'A rare book that turns conviction into a concrete plan for rural enterprise.',
-    name: 'A reader from Solapur',
-  },
-  {
-    quote: 'Reads like a call to action — and then gives you a way to answer it.',
-    name: 'A young founder',
-  },
+const TAKEAWAYS = [
+  'The real enemy isn’t outside — it’s mediocrity, complacency, and the shrug of “chalta hai.”',
+  'A Revolution of Responsibility — where skills and ideas are the weapons, and dignity is the victory.',
+  'A New India is built by you, not for you — the book asks not when India will change, but when you will.',
 ]
 
 export default function BookPage() {
@@ -41,62 +40,46 @@ export default function BookPage() {
           </h1>
           <p className="mt-2 text-lg text-muted">Going Beyond Possible — by Rohan Deshmukh</p>
 
-          <div className="mt-6 flex items-center gap-1 text-gold">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className="h-4 w-4 fill-current" aria-hidden="true" />
+          {/* Short synopsis */}
+          <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-muted">
+            Not a biography or a success story — <strong className="font-medium text-ink">a
+            manifesto</strong>. Written from Solapur, it carries his father Subhash Deshmukh&apos;s
+            dream — to incubate <strong className="font-medium text-ink">1,00,000 entrepreneurs</strong>{' '}
+            from India&apos;s youth — and turns it into a direct call to action for a self-reliant,
+            enterprise-led <strong className="font-medium text-ink">New India</strong>.
+          </p>
+
+          {/* What it tells you */}
+          <ul className="mt-6 max-w-xl space-y-2.5">
+            {TAKEAWAYS.map((t) => (
+              <li key={t} className="flex items-start gap-2.5 text-[15px] leading-relaxed text-ink">
+                <Check className="mt-1 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+                {t}
+              </li>
             ))}
-            <span className="ml-2 text-sm text-muted">Early readers&apos; favourite</span>
-          </div>
+          </ul>
 
-          <div className="mt-8 space-y-4 text-[15px] leading-relaxed text-muted">
-            <p>
-              A hundred years ago, &ldquo;an independent India&rdquo; was just an idea — until
-              someone dared to see it. <em>The New India Manifesto</em> argues that history is
-              repeating: the next revolution will rise from our towns and villages, led by
-              first-time founders and everyday builders.
+          {/* Chapters — compact */}
+          <div className="mt-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+              Inside the book
             </p>
-            <p>
-              The book makes the case for a self-reliant, enterprise-led India and ends with a
-              pledge — to incubate one enterprise and mentor others. It introduces the{' '}
-              <strong className="font-medium text-ink">Village Venture Fund</strong>: a circular
-              micro-equity model (₹10k–₹2L) that is repaid and recycled, so support keeps
-              flowing rather than running dry.
-            </p>
-          </div>
-
-          {/* Chapters */}
-          <div className="mt-10">
-            <h2 className="font-serif text-2xl font-medium text-ink">Inside the book</h2>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {CHAPTERS.map((c, i) => (
-                <li key={c} className="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xs font-semibold text-accent">
-                    {i + 1}
-                  </span>
-                  <span className="text-sm text-ink">{c}</span>
-                </li>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {CHAPTERS.map((c) => (
+                <span
+                  key={c}
+                  className="rounded-full border border-line bg-surface px-3 py-1.5 text-xs text-ink"
+                >
+                  {c}
+                </span>
               ))}
-            </ul>
-          </div>
-
-          {/* Testimonials */}
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            {TESTIMONIALS.map((t) => (
-              <blockquote key={t.name} className="rounded-2xl border border-line bg-surface p-5">
-                <p className="font-serif text-base italic leading-relaxed text-ink">
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <footer className="mt-3 text-xs uppercase tracking-widest text-muted">
-                  {t.name}
-                </footer>
-              </blockquote>
-            ))}
+            </div>
           </div>
 
           <div className="mt-8 flex items-center gap-2 rounded-xl border border-accent/20 bg-accent-soft/60 px-4 py-3 text-sm text-ink">
             <Check className="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
-            Buying the book never adds you to any campaign list. Updates are a separate,
-            optional opt-in.
+            Buying the book never adds you to any campaign list. Updates are a separate, optional
+            opt-in.
           </div>
         </div>
 

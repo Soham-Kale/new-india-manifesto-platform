@@ -29,7 +29,7 @@ export default function PledgePage() {
     const err: Record<string, string> = {}
     if (!req(name)) err.name = 'Please enter your name.'
     if (!isEmail(email)) err.email = 'Enter a valid email.'
-    if (!isPhone(phone)) err.phone = 'Enter a valid phone number.'
+    if (!isPhone(phone)) err.phone = 'Enter a valid 10-digit phone number.'
     if (!district) err.district = 'Please select your district.'
     if (commitment.length === 0) err.commitment = 'Choose at least one way to take part.'
     if (!consent) err.consent = 'Please agree to receive updates so we can add you.'

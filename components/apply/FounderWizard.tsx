@@ -115,7 +115,7 @@ export default function FounderWizard() {
       if (i === 0) {
         if (!req(form.fullName)) e.fullName = 'Please enter your full name.'
         if (!isEmail(form.email)) e.email = 'Enter a valid email.'
-        if (!isPhone(form.phone)) e.phone = 'Enter a valid phone number.'
+        if (!isPhone(form.phone)) e.phone = 'Enter a valid 10-digit phone number.'
         if (!form.district) e.district = 'Please select your district.'
       }
       if (i === 1) {

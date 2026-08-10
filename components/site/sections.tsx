@@ -74,16 +74,14 @@ export function Hero() {
             The action layer of the book
           </span>
 
-          <h1 className="mt-6 font-serif text-[2.6rem] font-medium leading-[1.02] tracking-tight text-ink sm:text-6xl">
-            Read the argument.
-            <br />
-            Take the pledge.
-            <br />
-            <span className="relative text-accent">
+          <h1 className="mt-6 font-display text-[2.4rem] font-semibold leading-[1.03] tracking-[-0.02em] text-ink sm:text-[3.4rem]">
+            Read the argument. Take the pledge.{' '}
+            <span className="relative whitespace-nowrap text-accent">
               Then act.
               <svg
-                className="absolute -bottom-2 left-0 w-[7.5ch] text-gold"
+                className="absolute -bottom-1.5 left-0 w-full text-gold"
                 viewBox="0 0 200 12"
+                preserveAspectRatio="none"
                 fill="none"
                 aria-hidden="true"
               >
@@ -120,7 +118,7 @@ export function Hero() {
             </Link>
           </div>
 
-          <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t border-line pt-6 text-sm text-muted">
+          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
             <span className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-accent" aria-hidden="true" />
               Solapur, Maharashtra
@@ -130,29 +128,51 @@ export function Hero() {
               Applications take ~1 minute
             </span>
           </div>
+
+          {/* Social proof */}
+          <dl className="mt-9 grid max-w-md grid-cols-3 gap-4 border-t border-line pt-6">
+            {STATS.map((s) => (
+              <div key={s.label}>
+                <dt className="font-display text-2xl font-semibold text-ink">{s.value}</dt>
+                <dd className="mt-1 text-xs leading-snug text-muted">{s.label}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
         {/* Portrait */}
         <div className="relative mx-auto w-full max-w-sm animate-scale-in lg:max-w-none">
+          {/* bold brand backdrop panel, offset behind the photo */}
           <div
             aria-hidden="true"
-            className="absolute -right-8 -top-8 h-44 w-44 rounded-full bg-accent/15 blur-3xl"
+            className="absolute -right-4 -top-4 bottom-8 left-8"
           />
           <div
             aria-hidden="true"
-            className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-gold/15 blur-3xl"
+            className="absolute -bottom-6 -left-8 h-32 w-32 rounded-full bg-gold/25 blur-3xl"
           />
-          <div className="relative rounded-[1.75rem] bg-linear-to-br from-accent/25 via-transparent to-gold/25 p-[1.5px] shadow-lift">
-            <div className="overflow-hidden rounded-[1.65rem] bg-accent-soft">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/portrait.jpg"
-                alt="Rohan Subhash Deshmukh"
-                className="aspect-[4/5] w-full object-cover object-top"
-              />
-              <div className="absolute bottom-4 left-4 right-4 rounded-2xl border border-white/10 bg-night/85 px-4 py-3 text-canvas backdrop-blur-md">
-                <p className="font-serif text-lg font-medium leading-tight">Rohan Subhash Deshmukh</p>
-                <p className="text-xs text-canvas/60">
+          <div className="relative overflow-hidden rounded-[1.75rem] shadow-lift ring-1 ring-black/5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/portrait.jpg"
+              alt="Rohan Subhash Deshmukh"
+              className="aspect-[4/5] w-full object-cover object-top"
+            />
+            {/* violet tint unifies the studio-grey backdrop with the brand */}
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 bg-linear-to-tr from-accent/35 via-accent/5 to-transparent mix-blend-multiply"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-night/80 to-transparent"
+            />
+            <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
+              <div>
+                <p className="font-display text-lg font-semibold leading-tight text-white">
+                  Rohan Subhash Deshmukh
+                </p>
+                <p className="text-xs text-white/70">
                   Author, <span className="italic">The New India Manifesto</span>
                 </p>
               </div>

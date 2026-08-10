@@ -42,7 +42,7 @@ export default function MentorApplyPage() {
     const err: Record<string, string> = {}
     if (!req(f.fullName)) err.fullName = 'Please enter your name.'
     if (!isEmail(f.email)) err.email = 'Enter a valid email.'
-    if (!isPhone(f.phone)) err.phone = 'Enter a valid phone number.'
+    if (!isPhone(f.phone)) err.phone = 'Enter a valid 10-digit phone number.'
     if (!req(f.expertise)) err.expertise = 'List at least one area of expertise.'
     if (f.sectors.length === 0) err.sectors = 'Choose at least one sector.'
     if (!minLen(f.bio, 20)) err.bio = 'Please add a short bio (20+ characters).'
@@ -95,7 +95,7 @@ export default function MentorApplyPage() {
         <FormInput label="Current role & company" name="roleCompany" value={f.roleCompany} onChange={(e) => set('roleCompany', e.target.value)} />
         <div className="grid gap-5 sm:grid-cols-2">
           <FormInput label="Years of experience" name="yearsExperience" type="number" min={0} value={f.yearsExperience} onChange={(e) => set('yearsExperience', e.target.value)} />
-          <FormInput label="Founders you can mentor" name="capacity" type="number" min={1} hint="Your capacity" value={f.capacity} onChange={(e) => set('capacity', e.target.value)} />
+          <FormInput label="Founders you can mentor (Your capacity)" name="capacity" type="number" min={1} value={f.capacity} onChange={(e) => set('capacity', e.target.value)} />
         </div>
         <FormInput label="Areas of expertise" name="expertise" required hint="Comma-separated, e.g. Supply chain, Branding, Operations" value={f.expertise} error={errors.expertise} onChange={(e) => set('expertise', e.target.value)} />
         <MultiSelectField label="Sectors you can help with" name="sectors" required options={SECTORS} values={f.sectors} onChange={(v) => set('sectors', v as Sector[])} error={errors.sectors} />

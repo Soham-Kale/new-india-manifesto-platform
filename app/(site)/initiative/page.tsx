@@ -66,34 +66,38 @@ export default function InitiativePage() {
   return (
     <>
       {/* Hero */}
-      <section className="border-b border-line bg-night text-canvas">
-        <div className="mx-auto max-w-5xl px-5 py-16 text-center sm:px-8 lg:py-24">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-ring">
-            The Initiative
-          </p>
-          <h1 className="mx-auto mt-4 max-w-3xl font-serif text-4xl font-medium leading-tight tracking-tight sm:text-5xl">
-            A Nation Waiting To Be Incubated
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-canvas/70">
-            The pledge from the book, made operational. Our goal:{' '}
-            <strong className="text-canvas">incubate 100,000 entrepreneurs</strong> from India&apos;s
-            rural heartland — by connecting them to mentorship, network and a revolving,
-            accountability-first support model.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/apply/founder"
-              className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-medium text-canvas transition hover:bg-accent-hover"
-            >
-              Apply to be incubated
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-            <Link
-              href="/pledge"
-              className="inline-flex items-center gap-2 rounded-xl border border-canvas/25 px-6 py-3.5 text-sm font-medium text-canvas transition hover:bg-canvas/5"
-            >
-              Take the pledge
-            </Link>
+      <section className="relative overflow-hidden border-b border-line bg-night text-canvas">
+        <div className="bg-night-aura">
+          <div className="mx-auto max-w-5xl px-5 py-20 text-center sm:px-8 lg:py-28">
+            <p className="flex items-center justify-center gap-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+              <span className="h-px w-7 bg-gold/60" aria-hidden="true" />
+              The Initiative
+              <span className="h-px w-7 bg-gold/60" aria-hidden="true" />
+            </p>
+            <h1 className="mx-auto mt-5 max-w-3xl font-serif text-4xl font-medium leading-tight tracking-tight sm:text-6xl">
+              A Nation Waiting To Be Incubated
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-canvas/70">
+              The pledge from the book, made operational. Our goal:{' '}
+              <strong className="text-canvas">incubate 100,000 entrepreneurs</strong> from India&apos;s
+              rural heartland — by connecting them to mentorship, network and a revolving,
+              accountability-first support model.
+            </p>
+            <div className="mt-9 flex flex-wrap justify-center gap-3">
+              <Link
+                href="/apply/founder"
+                className="group inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-medium text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-accent-hover hover:shadow-glow"
+              >
+                Apply to be incubated
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              </Link>
+              <Link
+                href="/pledge"
+                className="inline-flex items-center gap-2 rounded-xl border border-canvas/25 px-6 py-3.5 text-sm font-medium text-canvas transition hover:border-canvas/50 hover:bg-canvas/5"
+              >
+                Take the pledge
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -142,9 +146,13 @@ export default function InitiativePage() {
               <Link
                 key={title}
                 href={href}
-                className="group flex flex-col rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-card"
+                className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-lift"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent transition-colors group-hover:bg-accent group-hover:text-canvas">
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-linear-to-r from-accent to-gold transition-transform duration-300 group-hover:scale-x-100"
+                />
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-soft text-accent transition-colors group-hover:bg-accent group-hover:text-white">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <h3 className="mt-5 text-lg font-medium text-ink">{title}</h3>

@@ -41,7 +41,7 @@ export default function BookPage() {
           </h1>
           <p className="mt-2 text-lg text-muted">Going Beyond Possible — by Rohan Deshmukh</p>
 
-          <div className="mt-6 flex items-center gap-1 text-accent">
+          <div className="mt-6 flex items-center gap-1 text-gold">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star key={i} className="h-4 w-4 fill-current" aria-hidden="true" />
             ))}

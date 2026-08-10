@@ -1,43 +1,55 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand palette — Rohan Deshmukh violet */
-  --color-canvas: #faf9f6;
+  /* ---- Neutrals (warm, plum-tinted for a premium editorial feel) ---- */
+  --color-canvas: #faf8f4; /* warm ivory paper */
   --color-surface: #ffffff;
-  --color-ink: #191817;
-  --color-muted: #6b6b6b;
-  --color-line: #e8e5df;
+  --color-surface-2: #f5f1ec; /* subtle alternate section background */
+  --color-ink: #211b2e; /* deep plum-charcoal — high-contrast body text */
+  --color-muted: #6b6577; /* secondary text */
+  --color-subtle: #9a94a6; /* tertiary text / captions */
+  --color-line: #e8e3ee; /* soft violet-tinted hairline */
+  --color-line-strong: #d9d3e2;
 
-  --color-night: #1c1330;
-  --color-night-soft: #2a1e44;
+  /* ---- Dark sections ---- */
+  --color-night: #171025;
+  --color-night-soft: #241934;
 
-  --color-accent: #6b4090;
-  --color-accent-hover: #573375;
-  --color-accent-soft: #f1ebf6;
-  --color-accent-ring: #9a6fc0;
+  /* ---- Brand: violet (primary) ---- */
+  --color-accent: #6d3f97;
+  --color-accent-hover: #58307c;
+  --color-accent-soft: #f3edfa;
+  --color-accent-ring: #a982cf;
 
+  /* ---- Brand: gold (secondary — used sparingly for warmth/premium) ---- */
+  --color-gold: #bf913a;
+  --color-gold-hover: #a67d2c;
+  --color-gold-soft: #f8f1e2;
+
+  /* ---- Status ---- */
   --color-success: #1a7f4b;
   --color-danger: #c2452f;
   --color-warn: #a15c00;
 
-  /* Fonts (wired to next/font CSS variables in layout.tsx) */
+  /* ---- Fonts (wired to next/font in layout.tsx) ---- */
   --font-sans: var(--font-poppins), system-ui, -apple-system, sans-serif;
   --font-serif: var(--font-fraunces), Georgia, serif;
 
-  /* Elevation */
-  --shadow-card: 0 1px 2px rgba(24, 23, 21, 0.04), 0 8px 24px -12px rgba(24, 23, 21, 0.12);
-  --shadow-lift: 0 2px 4px rgba(24, 23, 21, 0.05), 0 18px 40px -16px rgba(24, 23, 21, 0.22);
+  /* ---- Elevation (soft, layered, plum-tinted) ---- */
+  --shadow-card: 0 1px 2px rgba(33, 27, 46, 0.04), 0 10px 30px -14px rgba(33, 27, 46, 0.14);
+  --shadow-lift: 0 2px 6px rgba(33, 27, 46, 0.06), 0 24px 50px -18px rgba(33, 27, 46, 0.26);
+  --shadow-glow: 0 10px 30px -8px rgba(109, 63, 151, 0.45);
 
-  /* Motion */
-  --animate-fade-up: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-  --animate-fade-in: fade-in 0.35s ease-out;
-  --animate-scale-in: scale-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-  --animate-slide-in: slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-  --animate-float: float 6s ease-in-out infinite;
+  /* ---- Motion ---- */
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-scale-in: scale-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-slide-in: slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-float: float 7s ease-in-out infinite;
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes fade-in {
@@ -45,7 +57,7 @@
   to { opacity: 1; }
 }
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.9); }
+  from { opacity: 0; transform: scale(0.92); }
   to { opacity: 1; transform: scale(1); }
 }
 @keyframes slide-in {
@@ -54,7 +66,7 @@
 }
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-8px); }
 }
 
 @layer base {
@@ -68,6 +80,12 @@
     background-color: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+    color: var(--color-ink);
   }
 
   *:focus-visible {
@@ -75,10 +93,26 @@
     box-shadow:
       0 0 0 2px var(--color-canvas),
       0 0 0 4px color-mix(in srgb, var(--color-accent) 55%, transparent);
-    border-radius: 4px;
+    border-radius: 6px;
   }
 }
 
-@utility text-balance {
-  text-wrap: balance;
+@layer utilities {
+  /* Soft branded backdrop for hero / feature sections. */
+  .bg-aura {
+    background-image:
+      radial-gradient(60rem 40rem at 85% -10%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 60%),
+      radial-gradient(48rem 32rem at -10% 10%, color-mix(in srgb, var(--color-gold) 10%, transparent), transparent 55%);
+  }
+  /* Glow used inside the dark band. */
+  .bg-night-aura {
+    background-image:
+      radial-gradient(50rem 34rem at 50% -10%, color-mix(in srgb, var(--color-accent) 40%, transparent), transparent 60%);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .gold-rule {
+    background-image: linear-gradient(90deg, var(--color-gold), transparent);
+  }
 }

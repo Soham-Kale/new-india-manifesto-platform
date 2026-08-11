@@ -1,5 +1,6 @@
 import {
   Hero,
+  BookFeature,
   FunnelSteps,
   CommunityEvents,
   VisionBand,
@@ -11,6 +12,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <BookFeature />
       <FunnelSteps />
       <CommunityEvents />
       <VisionBand />

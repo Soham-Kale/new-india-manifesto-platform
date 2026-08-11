@@ -151,6 +151,49 @@ export function Hero() {
 }
 
 /* ============================================================
+   BOOK FEATURE — cover + summary (home)
+   ============================================================ */
+export function BookFeature() {
+  const { t } = useT()
+  return (
+    <section className="border-b border-line">
+      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-24">
+        <div className="grid items-center gap-10 lg:grid-cols-[300px_1fr] lg:gap-16">
+          {/* Book cover */}
+          <div className="mx-auto w-full max-w-[280px] lg:mx-0">
+            <div className="overflow-hidden rounded-2xl border border-line shadow-lift">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/book-cover.jpg"
+                alt={t('book.title')}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div>
+            <Eyebrow>{t('book.eyebrow')}</Eyebrow>
+            <h2 className="mt-4 font-display text-3xl font-bold tracking-tight text-ink sm:text-[2.5rem]">
+              {t('book.title')}
+            </h2>
+            <p className="mt-2 text-lg text-muted">{t('book.subtitle')}</p>
+            <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-muted">
+              {t('book.synopsis')}
+            </p>
+            <div className="mt-8">
+              <PillLink href="/book" variant="dark">
+                {t('home.funnel.readCta')}
+              </PillLink>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    FUNNEL — Read → Pledge → Act
    ============================================================ */
 const FUNNEL = [
@@ -484,7 +527,7 @@ export function AuthorVideo() {
 const CONTACTS = [
   { icon: Phone, key: 'call', value: '+91 82087 37624', href: 'tel:+918208737624' },
   { icon: MessageCircle, key: 'whatsapp', value: '+91 82087 37624', href: 'https://wa.me/918208737624' },
-  { icon: Mail, key: 'email', value: 'support@youinsports.ai', href: 'mailto:support@youinsports.ai' },
+  { icon: Mail, key: 'email', value: 'rohandeshmukh@gmail.com', href: 'mailto:rohandeshmukh@gmail.com' },
   { icon: MapPin, key: 'office', value: null, href: null },
 ] as const
 

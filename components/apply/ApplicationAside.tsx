@@ -2,6 +2,7 @@
 
 import { Check } from 'lucide-react'
 import type { WizardStep } from './wizardSteps'
+import { useT } from '@/lib/i18n'
 
 interface Props {
   steps: WizardStep[]
@@ -16,6 +17,7 @@ export default function ApplicationAside({
   maxReached,
   onStepClick,
 }: Props) {
+  const { t } = useT()
   return (
     <aside className="sticky top-0 hidden h-screen w-[340px] shrink-0 flex-col justify-between overflow-hidden bg-night px-9 py-10 text-canvas lg:flex xl:w-[380px]">
       <div
@@ -25,9 +27,9 @@ export default function ApplicationAside({
 
       <div className="relative">
         <div>
-          <p className="font-serif text-lg font-medium tracking-tight">Rohan Subhash Deshmukh</p>
+          <p className="font-serif text-lg font-medium tracking-tight">{t('apply.asideName')}</p>
           <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-canvas/45">
-            The New India Manifesto
+            {t('apply.asideTagline')}
           </p>
         </div>
 
@@ -87,10 +89,10 @@ export default function ApplicationAside({
       <div className="relative">
         <blockquote className="border-l-2 border-accent/60 pl-4">
           <p className="font-serif text-base italic leading-relaxed text-canvas/75">
-            &ldquo;The next revolution will rise from our rural heartland.&rdquo;
+            &ldquo;{t('apply.asideQuote')}&rdquo;
           </p>
         </blockquote>
-        <p className="mt-6 text-[11px] text-canvas/35">© 2026 The New India Manifesto</p>
+        <p className="mt-6 text-[11px] text-canvas/35">{t('apply.asideCopyright')}</p>
       </div>
     </aside>
   )

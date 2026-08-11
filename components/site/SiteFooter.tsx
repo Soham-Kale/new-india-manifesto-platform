@@ -1,59 +1,61 @@
+'use client'
+
 import Link from 'next/link'
+import { useT } from '@/lib/i18n'
 
 const COLS = [
   {
-    title: 'Explore',
+    titleKey: 'explore',
     links: [
-      { label: 'The Book', href: '/book' },
-      { label: 'About Rohan', href: '/rohan' },
-      { label: 'The Initiative', href: '/initiative' },
-      { label: 'Take the Pledge', href: '/pledge' },
+      { key: 'linkBook', href: '/book' },
+      { key: 'linkAbout', href: '/rohan' },
+      { key: 'linkInitiative', href: '/initiative' },
+      { key: 'linkPledge', href: '/pledge' },
     ],
   },
   {
-    title: 'Apply',
+    titleKey: 'apply',
     links: [
-      { label: 'Founder', href: '/apply/founder' },
-      { label: 'Mentor', href: '/apply/mentor' },
-      { label: 'Investor', href: '/apply/investor' },
-      { label: 'Industry Expert', href: '/apply/expert' },
+      { key: 'linkFounder', href: '/apply/founder' },
+      { key: 'linkMentor', href: '/apply/mentor' },
+      { key: 'linkInvestor', href: '/apply/investor' },
+      { key: 'linkExpert', href: '/apply/expert' },
     ],
   },
   {
-    title: 'Legal',
+    titleKey: 'legal',
     links: [
-      { label: 'Privacy', href: '/privacy' },
-      { label: 'Terms', href: '/terms' },
-      { label: 'Shipping', href: '/shipping' },
-      { label: 'Refund', href: '/refund' },
+      { key: 'linkPrivacy', href: '/privacy' },
+      { key: 'linkTerms', href: '/terms' },
+      { key: 'linkShipping', href: '/shipping' },
+      { key: 'linkRefund', href: '/refund' },
     ],
   },
-]
+] as const
 
 export default function SiteFooter() {
+  const { t } = useT()
   return (
     <footer className="mt-auto border-t border-line bg-night text-canvas">
       <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <p className="font-serif text-lg font-medium">Rohan Subhash Deshmukh</p>
-            <p className="mt-1 text-sm text-canvas/55">
-              The New India Manifesto — Going Beyond Possible
-            </p>
+            <p className="font-serif text-lg font-medium">{t('footer.name')}</p>
+            <p className="mt-1 text-sm text-canvas/55">{t('footer.tagline')}</p>
             <a
               href="https://wa.me/918208737624"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 inline-block text-sm text-canvas/80 transition-colors hover:text-accent-ring"
             >
-              WhatsApp: +91 82087 37624
+              {t('footer.whatsapp')}
             </a>
           </div>
 
           {COLS.map((col) => (
-            <div key={col.title}>
+            <div key={col.titleKey}>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-canvas/45">
-                {col.title}
+                {t(`footer.${col.titleKey}`)}
               </p>
               <ul className="mt-3 space-y-2">
                 {col.links.map((l) => (
@@ -62,7 +64,7 @@ export default function SiteFooter() {
                       href={l.href}
                       className="text-sm text-canvas/75 transition-colors hover:text-accent-ring"
                     >
-                      {l.label}
+                      {t(`footer.${l.key}`)}
                     </Link>
                   </li>
                 ))}
@@ -72,8 +74,8 @@ export default function SiteFooter() {
         </div>
 
         <div className="mt-10 flex flex-col items-start justify-between gap-2 border-t border-canvas/10 pt-6 text-xs text-canvas/40 sm:flex-row sm:items-center">
-          <p>© 2026 The New India Manifesto. All rights reserved.</p>
-          <p>A criteria-based, revolving initiative — not an offer of grants or guaranteed capital.</p>
+          <p>{t('footer.copyright')}</p>
+          <p>{t('footer.disclaimer')}</p>
         </div>
       </div>
     </footer>

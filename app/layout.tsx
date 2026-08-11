@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
-import { Poppins, Fraunces } from 'next/font/google'
+import { cookies } from 'next/headers'
+import { Poppins, Fraunces, Noto_Sans_Devanagari, Noto_Serif_Devanagari } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
 import RoleSwitcher from '@/components/site/RoleSwitcher'
+import type { Lang } from '@/lib/i18n'
 
 const poppins = Poppins({
   variable: '--font-poppins',
@@ -17,19 +19,42 @@ const fraunces = Fraunces({
   weight: ['400', '500', '600'],
 })
 
+const notoDeva = Noto_Sans_Devanagari({
+  variable: '--font-deva',
+  subsets: ['devanagari'],
+  weight: ['400', '500', '600', '700'],
+})
+
+const notoDevaSerif = Noto_Serif_Devanagari({
+  variable: '--font-deva-serif',
+  subsets: ['devanagari'],
+  weight: ['400', '500', '600', '700'],
+})
+
 export const metadata: Metadata = {
   title: 'Rohan Deshmukh — The New India Manifesto',
   description:
     'The New India Manifesto: Going Beyond Possible. Read the argument, take the pledge, and act — apply as a founder, mentor, investor or industry expert to help incubate India from its rural heartland.',
 }
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+// Demo role-switcher is a dev tool — only render it when explicitly enabled.
+const showDemo =
+  process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || process.env.NODE_ENV !== 'production'
+
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const cookieLang = (await cookies()).get('nim.lang')?.value
+  const lang: Lang = cookieLang === 'en' ? 'en' : 'mr'
+
   return (
-    <html lang="en" className={`${poppins.variable} ${fraunces.variable} h-full antialiased`}>
+    <html
+      lang={lang}
+      data-lang={lang}
+      className={`${poppins.variable} ${fraunces.variable} ${notoDeva.variable} ${notoDevaSerif.variable} h-full antialiased`}
+    >
       <body className="flex min-h-screen flex-col bg-canvas text-ink">
-        <Providers>
+        <Providers initialLang={lang}>
           {children}
-          <RoleSwitcher />
+          {showDemo && <RoleSwitcher />}
         </Providers>
       </body>
     </html>

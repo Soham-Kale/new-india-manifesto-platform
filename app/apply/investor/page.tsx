@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import type { Sector, FounderStage, InvestorType } from '@/lib/types'
-import { SECTORS, FOUNDER_STAGES, INVESTOR_TYPES } from '@/lib/options'
 import { useMockData } from '@/lib/MockDataProvider'
 import { useMockAuth } from '@/lib/MockAuthProvider'
+import { useT, useOptions } from '@/lib/i18n'
 import { isEmail, isPhone, req } from '@/lib/validation'
 import ApplyShell from '@/components/apply/ApplyShell'
 import ApplicationSuccess from '@/components/apply/ApplicationSuccess'
@@ -18,6 +18,8 @@ import CheckboxConsent from '@/components/ui/CheckboxConsent'
 export default function InvestorApplyPage() {
   const { addInvestorProfile } = useMockData()
   const { signIn } = useMockAuth()
+  const { t } = useT()
+  const { sectors, stages, investorTypes } = useOptions()
   const [done, setDone] = useState(false)
 
   const [f, setF] = useState({
@@ -34,19 +36,18 @@ export default function InvestorApplyPage() {
     consent: false,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) =>
-    setF((s) => ({ ...s, [k]: v }))
+  const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((s) => ({ ...s, [k]: v }))
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     const err: Record<string, string> = {}
-    if (!req(f.fullName)) err.fullName = 'Please enter your name.'
-    if (!isEmail(f.email)) err.email = 'Enter a valid email.'
-    if (!isPhone(f.phone)) err.phone = 'Enter a valid 10-digit phone number.'
-    if (!f.investorType) err.investorType = 'Select an investor type.'
-    if (f.sectors.length === 0) err.sectors = 'Choose at least one sector.'
-    if (f.stageFocus.length === 0) err.stageFocus = 'Choose at least one stage.'
-    if (!f.consent) err.consent = 'This consent is required to submit.'
+    if (!req(f.fullName)) err.fullName = t('apply.vNameShort')
+    if (!isEmail(f.email)) err.email = t('apply.vEmail')
+    if (!isPhone(f.phone)) err.phone = t('apply.vPhone')
+    if (!f.investorType) err.investorType = t('apply.vInvestorType')
+    if (f.sectors.length === 0) err.sectors = t('apply.vSectors')
+    if (f.stageFocus.length === 0) err.stageFocus = t('apply.vStageFocus')
+    if (!f.consent) err.consent = t('apply.vConsent')
     setErrors(err)
     if (Object.keys(err).length > 0) return
 
@@ -71,40 +72,33 @@ export default function InvestorApplyPage() {
   if (done) {
     return (
       <ApplyShell>
-        <ApplicationSuccess
-          title="Thank you — application received."
-          message="Your investor profile is pending review. We curate deal-flow carefully and reveal founder contact only after a match is approved. We'll be in touch."
-        />
+        <ApplicationSuccess title={t('apply.investorSuccessTitle')} message={t('apply.investorSuccessMsg')} />
       </ApplyShell>
     )
   }
 
   return (
     <ApplyShell>
-      <StepHeading
-        eyebrow="Apply · Investor"
-        title="Back a founder"
-        subtitle="Support vetted founders through a transparent, revolving model."
-      />
+      <StepHeading eyebrow={t('apply.investorEyebrow')} title={t('apply.investorTitle')} subtitle={t('apply.investorSubtitle')} />
       <form onSubmit={submit} className="space-y-5" noValidate>
-        <FormInput label="Full name" name="fullName" required value={f.fullName} error={errors.fullName} onChange={(e) => set('fullName', e.target.value)} />
+        <FormInput label={t('apply.fullName')} name="fullName" required value={f.fullName} error={errors.fullName} onChange={(e) => set('fullName', e.target.value)} />
         <div className="grid gap-5 sm:grid-cols-2">
-          <FormInput label="Email" name="email" type="email" required value={f.email} error={errors.email} onChange={(e) => set('email', e.target.value)} />
-          <FormInput label="Phone" name="phone" type="tel" required value={f.phone} error={errors.phone} onChange={(e) => set('phone', e.target.value)} />
+          <FormInput label={t('apply.email')} name="email" type="email" required value={f.email} error={errors.email} onChange={(e) => set('email', e.target.value)} />
+          <FormInput label={t('apply.phone')} name="phone" type="tel" required value={f.phone} error={errors.phone} onChange={(e) => set('phone', e.target.value)} />
         </div>
-        <FormInput label="Firm / entity name" name="firmName" value={f.firmName} onChange={(e) => set('firmName', e.target.value)} />
-        <SelectField label="Investor type" name="investorType" required options={INVESTOR_TYPES} value={f.investorType} onChange={(v) => set('investorType', v as InvestorType)} error={errors.investorType} />
+        <FormInput label={t('apply.iFirm')} name="firmName" value={f.firmName} onChange={(e) => set('firmName', e.target.value)} />
+        <SelectField label={t('apply.iType')} name="investorType" required options={investorTypes} value={f.investorType} onChange={(v) => set('investorType', v as InvestorType)} error={errors.investorType} />
         <div className="grid gap-5 sm:grid-cols-2">
-          <FormInput label="Typical ticket — min (₹)" name="ticketMin" type="number" min={0} value={f.ticketMin} onChange={(e) => set('ticketMin', e.target.value)} />
-          <FormInput label="Typical ticket — max (₹)" name="ticketMax" type="number" min={0} value={f.ticketMax} onChange={(e) => set('ticketMax', e.target.value)} />
+          <FormInput label={t('apply.iTicketMin')} name="ticketMin" type="number" min={0} value={f.ticketMin} onChange={(e) => set('ticketMin', e.target.value)} />
+          <FormInput label={t('apply.iTicketMax')} name="ticketMax" type="number" min={0} value={f.ticketMax} onChange={(e) => set('ticketMax', e.target.value)} />
         </div>
-        <MultiSelectField label="Sectors of interest" name="sectors" required options={SECTORS} values={f.sectors} onChange={(v) => set('sectors', v as Sector[])} error={errors.sectors} />
-        <MultiSelectField label="Stage focus" name="stageFocus" required options={FOUNDER_STAGES} values={f.stageFocus} onChange={(v) => set('stageFocus', v as FounderStage[])} error={errors.stageFocus} />
-        <FormInput label="LinkedIn" name="linkedin" value={f.linkedin} onChange={(e) => set('linkedin', e.target.value)} />
+        <MultiSelectField label={t('apply.iSectors')} name="sectors" required options={sectors} values={f.sectors} onChange={(v) => set('sectors', v as Sector[])} error={errors.sectors} />
+        <MultiSelectField label={t('apply.iStageFocus')} name="stageFocus" required options={stages} values={f.stageFocus} onChange={(v) => set('stageFocus', v as FounderStage[])} error={errors.stageFocus} />
+        <FormInput label={t('apply.linkedin')} name="linkedin" value={f.linkedin} onChange={(e) => set('linkedin', e.target.value)} />
         <CheckboxConsent name="consent" checked={f.consent} onChange={(v) => set('consent', v)} error={errors.consent}>
-          I agree to my details being processed for the investor programme. (Required — DPDP consent.)
+          {t('apply.iConsent')}
         </CheckboxConsent>
-        <Button type="submit" className="w-full">Submit investor application</Button>
+        <Button type="submit" className="w-full">{t('apply.iSubmit')}</Button>
       </form>
     </ApplyShell>
   )

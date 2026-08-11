@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { Check, HandHeart } from 'lucide-react'
 import type { District, Commitment } from '@/lib/types'
-import { DISTRICTS, COMMITMENTS } from '@/lib/options'
 import { useMockData } from '@/lib/MockDataProvider'
+import { useT, useOptions } from '@/lib/i18n'
 import { isEmail, isPhone, req } from '@/lib/validation'
 import Button from '@/components/ui/Button'
 import FormInput from '@/components/ui/FormInput'
@@ -14,6 +14,8 @@ import CheckboxConsent from '@/components/ui/CheckboxConsent'
 
 export default function PledgePage() {
   const { addPledge } = useMockData()
+  const { t } = useT()
+  const { districts, commitments } = useOptions()
   const [done, setDone] = useState(false)
 
   const [name, setName] = useState('')
@@ -27,12 +29,12 @@ export default function PledgePage() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     const err: Record<string, string> = {}
-    if (!req(name)) err.name = 'Please enter your name.'
-    if (!isEmail(email)) err.email = 'Enter a valid email.'
-    if (!isPhone(phone)) err.phone = 'Enter a valid 10-digit phone number.'
-    if (!district) err.district = 'Please select your district.'
-    if (commitment.length === 0) err.commitment = 'Choose at least one way to take part.'
-    if (!consent) err.consent = 'Please agree to receive updates so we can add you.'
+    if (!req(name)) err.name = t('pledge.errName')
+    if (!isEmail(email)) err.email = t('pledge.errEmail')
+    if (!isPhone(phone)) err.phone = t('pledge.errPhone')
+    if (!district) err.district = t('pledge.errDistrict')
+    if (commitment.length === 0) err.commitment = t('pledge.errCommitment')
+    if (!consent) err.consent = t('pledge.errConsent')
     setErrors(err)
     if (Object.keys(err).length > 0) return
 
@@ -56,13 +58,12 @@ export default function PledgePage() {
             <Check className="h-6 w-6" strokeWidth={2.5} aria-hidden="true" />
           </span>
         </div>
-        <h1 className="font-serif text-3xl font-medium tracking-tight text-ink">You&apos;re in.</h1>
-        <p className="mt-3 text-muted">
-          Thank you, {name.split(' ')[0]}. You&apos;ve joined the movement for a new India. We&apos;ll
-          keep you posted on what&apos;s next.
-        </p>
+        <h1 className="font-display text-3xl font-semibold uppercase tracking-tight text-ink">
+          {t('pledge.doneTitle')}
+        </h1>
+        <p className="mt-3 text-muted">{t('pledge.doneMsg')}</p>
         <Button className="mt-8" onClick={() => window.location.assign('/')}>
-          Back to home
+          {t('pledge.backHome')}
         </Button>
       </div>
     )
@@ -74,17 +75,15 @@ export default function PledgePage() {
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
           <HandHeart className="h-6 w-6" aria-hidden="true" />
         </span>
-        <h1 className="mt-5 font-serif text-4xl font-medium tracking-tight text-ink">
-          Yes, I Am In
+        <h1 className="mt-5 font-display text-4xl font-semibold uppercase tracking-tight text-ink">
+          {t('pledge.title')}
         </h1>
-        <p className="mt-3 text-muted">
-          Add your name to the movement in under a minute. No account needed.
-        </p>
+        <p className="mt-3 text-muted">{t('pledge.subcopy')}</p>
       </div>
 
       <form onSubmit={submit} className="space-y-5" noValidate>
         <FormInput
-          label="Full name"
+          label={t('pledge.fullName')}
           name="name"
           required
           value={name}
@@ -92,7 +91,7 @@ export default function PledgePage() {
           onChange={(e) => setName(e.target.value)}
         />
         <FormInput
-          label="Email"
+          label={t('pledge.email')}
           name="email"
           type="email"
           required
@@ -101,7 +100,7 @@ export default function PledgePage() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <FormInput
-          label="Phone / WhatsApp"
+          label={t('pledge.phone')}
           name="phone"
           type="tel"
           required
@@ -110,30 +109,29 @@ export default function PledgePage() {
           onChange={(e) => setPhone(e.target.value)}
         />
         <SelectField
-          label="District"
+          label={t('pledge.district')}
           name="district"
           required
-          options={DISTRICTS}
+          options={districts}
           value={district}
           onChange={(v) => setDistrict(v as District)}
           error={errors.district}
         />
         <MultiSelectField
-          label="How do you want to take part?"
+          label={t('pledge.commitmentLabel')}
           name="commitment"
           required
-          options={COMMITMENTS}
+          options={commitments}
           values={commitment}
           onChange={(v) => setCommitment(v as Commitment[])}
           error={errors.commitment}
         />
         <CheckboxConsent name="consent" checked={consent} onChange={setConsent} error={errors.consent}>
-          I agree to receive campaign updates about the New India movement. (Required to add you to
-          the supporter list — DPDP consent.)
+          {t('pledge.consent')}
         </CheckboxConsent>
 
         <Button type="submit" className="w-full">
-          Take the pledge
+          {t('pledge.submit')}
         </Button>
       </form>
     </div>

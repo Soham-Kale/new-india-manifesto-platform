@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import ApplicationAside from './ApplicationAside'
 import type { WizardStep } from './wizardSteps'
+import { useT } from '@/lib/i18n'
 
 interface Props {
   steps: WizardStep[]
@@ -20,6 +21,7 @@ export default function ApplicationLayout({
   goToStep,
   children,
 }: Props) {
+  const { t } = useT()
   const total = steps.length
   const progress = ((currentStep + 1) / total) * 100
 
@@ -38,14 +40,14 @@ export default function ApplicationLayout({
           <div className="flex items-center justify-between px-5 py-3.5 sm:px-8">
             <Link href="/" className="text-left">
               <p className="font-serif text-sm font-medium tracking-tight text-ink">
-                Rohan Deshmukh
+                {t('home.hero.author')}
               </p>
               <p className="text-[10px] uppercase tracking-[0.18em] text-accent">
-                The New India Manifesto
+                {t('nav.manifesto')}
               </p>
             </Link>
             <span className="rounded-full border border-line px-2.5 py-1 text-[11px] font-medium text-muted">
-              Application
+              {t('apply.application')}
             </span>
           </div>
         </header>
@@ -56,7 +58,7 @@ export default function ApplicationLayout({
             <div className="mb-8 lg:hidden">
               <div className="mb-2 flex items-baseline justify-between">
                 <span className="text-sm font-medium text-ink">
-                  Step {currentStep + 1} of {total}
+                  {t('apply.stepWord')} {currentStep + 1} {t('apply.ofWord')} {total}
                 </span>
                 <span className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">
                   {steps[currentStep].label}

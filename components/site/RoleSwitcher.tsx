@@ -6,14 +6,15 @@ import { FlaskConical, ChevronUp, RotateCcw, X } from 'lucide-react'
 import type { Identity } from '@/lib/types'
 import { useMockAuth } from '@/lib/MockAuthProvider'
 import { useMockData } from '@/lib/MockDataProvider'
+import { useT } from '@/lib/i18n'
 
-const IDENTITIES: { id: Identity; label: string; hint: string }[] = [
-  { id: 'guest', label: 'Guest', hint: 'Public visitor' },
-  { id: 'founder', label: 'Founder', hint: 'Applicant view' },
-  { id: 'mentor', label: 'Mentor', hint: 'Pending profile' },
-  { id: 'investor', label: 'Investor', hint: 'Pending profile' },
-  { id: 'expert', label: 'Expert', hint: 'Pending profile' },
-  { id: 'admin', label: 'Admin', hint: 'Control room' },
+const IDENTITIES: { id: Identity; labelKey: string; hintKey: string }[] = [
+  { id: 'guest', labelKey: 'demo.guest', hintKey: 'demo.guestHint' },
+  { id: 'founder', labelKey: 'demo.founder', hintKey: 'demo.founderHint' },
+  { id: 'mentor', labelKey: 'demo.mentor', hintKey: 'demo.mentorHint' },
+  { id: 'investor', labelKey: 'demo.investor', hintKey: 'demo.investorHint' },
+  { id: 'expert', labelKey: 'demo.expert', hintKey: 'demo.expertHint' },
+  { id: 'admin', labelKey: 'demo.admin', hintKey: 'demo.adminHint' },
 ]
 
 // Frontend-only demo widget: simulates login by switching the active identity
@@ -21,6 +22,7 @@ const IDENTITIES: { id: Identity; label: string; hint: string }[] = [
 export default function RoleSwitcher() {
   const { identity, switchRole } = useMockAuth()
   const { reset } = useMockData()
+  const { t } = useT()
   const router = useRouter()
   const [open, setOpen] = useState(false)
 
@@ -33,7 +35,7 @@ export default function RoleSwitcher() {
           <div className="flex items-center justify-between border-b border-canvas/10 px-4 py-3">
             <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-accent-ring">
               <FlaskConical className="h-4 w-4" aria-hidden="true" />
-              Demo mode
+              {t('demo.mode')}
             </span>
             <button
               type="button"
@@ -46,7 +48,7 @@ export default function RoleSwitcher() {
           </div>
 
           <div className="p-2">
-            <p className="px-2 pb-1 pt-1 text-[11px] text-canvas/45">View the site as</p>
+            <p className="px-2 pb-1 pt-1 text-[11px] text-canvas/45">{t('demo.viewAs')}</p>
             {IDENTITIES.map((i) => (
               <button
                 key={i.id}
@@ -58,8 +60,8 @@ export default function RoleSwitcher() {
                     : 'text-canvas/70 hover:bg-canvas/5'
                 }`}
               >
-                <span>{i.label}</span>
-                <span className="text-[11px] text-canvas/40">{i.hint}</span>
+                <span>{t(i.labelKey)}</span>
+                <span className="text-[11px] text-canvas/40">{t(i.hintKey)}</span>
               </button>
             ))}
           </div>
@@ -74,7 +76,7 @@ export default function RoleSwitcher() {
               className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-canvas/70 transition hover:bg-canvas/5"
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
-              Reset demo data
+              {t('demo.reset')}
             </button>
           </div>
         </div>
@@ -85,7 +87,7 @@ export default function RoleSwitcher() {
           className="flex items-center gap-2 rounded-full border border-night-soft bg-night px-4 py-2.5 text-sm font-medium text-canvas shadow-lift transition hover:bg-night-soft"
         >
           <FlaskConical className="h-4 w-4 text-accent-ring" aria-hidden="true" />
-          Demo: {current.label}
+          {t('demo.current')} {t(current.labelKey)}
           <ChevronUp className="h-4 w-4 text-canvas/50" aria-hidden="true" />
         </button>
       )}

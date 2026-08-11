@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import type { Contribution } from '@/lib/types'
-import { CONTRIBUTIONS } from '@/lib/options'
 import { useMockData } from '@/lib/MockDataProvider'
 import { useMockAuth } from '@/lib/MockAuthProvider'
+import { useT, useOptions } from '@/lib/i18n'
 import { isEmail, isPhone, req, minLen } from '@/lib/validation'
 import ApplyShell from '@/components/apply/ApplyShell'
 import ApplicationSuccess from '@/components/apply/ApplicationSuccess'
@@ -18,6 +18,8 @@ import CheckboxConsent from '@/components/ui/CheckboxConsent'
 export default function ExpertApplyPage() {
   const { addExpertProfile } = useMockData()
   const { signIn } = useMockAuth()
+  const { t } = useT()
+  const { contributions } = useOptions()
   const [done, setDone] = useState(false)
 
   const [f, setF] = useState({
@@ -31,19 +33,18 @@ export default function ExpertApplyPage() {
     consent: false,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) =>
-    setF((s) => ({ ...s, [k]: v }))
+  const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((s) => ({ ...s, [k]: v }))
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     const err: Record<string, string> = {}
-    if (!req(f.fullName)) err.fullName = 'Please enter your name.'
-    if (!isEmail(f.email)) err.email = 'Enter a valid email.'
-    if (!isPhone(f.phone)) err.phone = 'Enter a valid 10-digit phone number.'
-    if (!req(f.domain)) err.domain = 'Please enter your domain.'
-    if (f.contribution.length === 0) err.contribution = 'Choose at least one way to contribute.'
-    if (!minLen(f.bio, 20)) err.bio = 'Please add a short bio (20+ characters).'
-    if (!f.consent) err.consent = 'This consent is required to submit.'
+    if (!req(f.fullName)) err.fullName = t('apply.vNameShort')
+    if (!isEmail(f.email)) err.email = t('apply.vEmail')
+    if (!isPhone(f.phone)) err.phone = t('apply.vPhone')
+    if (!req(f.domain)) err.domain = t('apply.vDomain')
+    if (f.contribution.length === 0) err.contribution = t('apply.vContribution')
+    if (!minLen(f.bio, 20)) err.bio = t('apply.vBio')
+    if (!f.consent) err.consent = t('apply.vConsent')
     setErrors(err)
     if (Object.keys(err).length > 0) return
 
@@ -65,35 +66,28 @@ export default function ExpertApplyPage() {
   if (done) {
     return (
       <ApplyShell>
-        <ApplicationSuccess
-          title="Thank you — application received."
-          message="Your expert profile is pending review. We'll reach out about judging, speaking, curriculum or policy opportunities that fit your domain."
-        />
+        <ApplicationSuccess title={t('apply.expertSuccessTitle')} message={t('apply.expertSuccessMsg')} />
       </ApplyShell>
     )
   }
 
   return (
     <ApplyShell>
-      <StepHeading
-        eyebrow="Apply · Industry Expert"
-        title="Lend your expertise"
-        subtitle="Judge, speak, shape curriculum, or advise on policy for the initiative."
-      />
+      <StepHeading eyebrow={t('apply.expertEyebrow')} title={t('apply.expertTitle')} subtitle={t('apply.expertSubtitle')} />
       <form onSubmit={submit} className="space-y-5" noValidate>
-        <FormInput label="Full name" name="fullName" required value={f.fullName} error={errors.fullName} onChange={(e) => set('fullName', e.target.value)} />
+        <FormInput label={t('apply.fullName')} name="fullName" required value={f.fullName} error={errors.fullName} onChange={(e) => set('fullName', e.target.value)} />
         <div className="grid gap-5 sm:grid-cols-2">
-          <FormInput label="Email" name="email" type="email" required value={f.email} error={errors.email} onChange={(e) => set('email', e.target.value)} />
-          <FormInput label="Phone" name="phone" type="tel" required value={f.phone} error={errors.phone} onChange={(e) => set('phone', e.target.value)} />
+          <FormInput label={t('apply.email')} name="email" type="email" required value={f.email} error={errors.email} onChange={(e) => set('email', e.target.value)} />
+          <FormInput label={t('apply.phone')} name="phone" type="tel" required value={f.phone} error={errors.phone} onChange={(e) => set('phone', e.target.value)} />
         </div>
-        <FormInput label="Your domain" name="domain" required hint="e.g. Agricultural sciences, Public policy, Product design" value={f.domain} error={errors.domain} onChange={(e) => set('domain', e.target.value)} />
-        <MultiSelectField label="How would you like to contribute?" name="contribution" required options={CONTRIBUTIONS} values={f.contribution} onChange={(v) => set('contribution', v as Contribution[])} error={errors.contribution} />
-        <FormInput label="LinkedIn" name="linkedin" value={f.linkedin} onChange={(e) => set('linkedin', e.target.value)} />
-        <FormTextarea label="Short bio" name="bio" required showCount rows={4} value={f.bio} error={errors.bio} onChange={(e) => set('bio', e.target.value)} />
+        <FormInput label={t('apply.eDomain')} name="domain" required hint={t('apply.eDomainHint')} value={f.domain} error={errors.domain} onChange={(e) => set('domain', e.target.value)} />
+        <MultiSelectField label={t('apply.eContribution')} name="contribution" required options={contributions} values={f.contribution} onChange={(v) => set('contribution', v as Contribution[])} error={errors.contribution} />
+        <FormInput label={t('apply.linkedin')} name="linkedin" value={f.linkedin} onChange={(e) => set('linkedin', e.target.value)} />
+        <FormTextarea label={t('apply.eBio')} name="bio" required showCount rows={4} value={f.bio} error={errors.bio} onChange={(e) => set('bio', e.target.value)} />
         <CheckboxConsent name="consent" checked={f.consent} onChange={(v) => set('consent', v)} error={errors.consent}>
-          I agree to my details being processed for the expert programme. (Required — DPDP consent.)
+          {t('apply.eConsent')}
         </CheckboxConsent>
-        <Button type="submit" className="w-full">Submit expert application</Button>
+        <Button type="submit" className="w-full">{t('apply.eSubmit')}</Button>
       </form>
     </ApplyShell>
   )

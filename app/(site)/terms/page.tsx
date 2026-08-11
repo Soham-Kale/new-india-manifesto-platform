@@ -23,8 +23,9 @@ export default function TermsPage() {
       </p>
       <h2>Book purchases</h2>
       <p>
-        Purchases are fulfilled per our shipping and refund policies. Payments are processed by
-        Razorpay; we do not store card details.
+        The book is sold and fulfilled through Amazon. Purchases, payments, shipping and returns are
+        handled by Amazon under Amazon&apos;s own terms; we do not process payments or store any card
+        details.
       </p>
     </LegalShell>
   )

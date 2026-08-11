@@ -4,9 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
-  Camera,
   Loader2,
-  RotateCcw,
   Upload,
   Video,
   Send,
@@ -20,8 +18,6 @@ import ApplicationLayout from './ApplicationLayout'
 import ApplyShell from './ApplyShell'
 import ApplicationSuccess from './ApplicationSuccess'
 import { FOUNDER_STEPS } from './wizardSteps'
-import VideoRecorder from './VideoRecorder'
-import VideoUploader from './VideoUploader'
 import Button from '@/components/ui/Button'
 import FormInput from '@/components/ui/FormInput'
 import FormTextarea from '@/components/ui/FormTextarea'
@@ -78,7 +74,6 @@ const INITIAL: Form = {
 }
 
 type Errors = Partial<Record<keyof Form, string>>
-type VideoMode = 'idle' | 'record' | 'upload'
 type Status = 'filling' | 'submitting' | 'success' | 'already'
 
 export default function FounderWizard() {
@@ -89,7 +84,6 @@ export default function FounderWizard() {
   const [step, setStep] = useState(0)
   const [maxReached, setMaxReached] = useState(0)
   const [errors, setErrors] = useState<Errors>({})
-  const [videoMode, setVideoMode] = useState<VideoMode>('idle')
   const [status, setStatus] = useState<Status>('filling')
 
   const set = useCallback(<K extends keyof Form>(key: K, value: Form[K]) => {
@@ -127,6 +121,12 @@ export default function FounderWizard() {
         if (!minLen(form.whatBuilt, 20)) e.whatBuilt = 'Please add a little more detail (20+ characters).'
         if (form.lookingFor.length === 0) e.lookingFor = 'Choose at least one kind of support.'
       }
+      if (i === 2) {
+        const url = (form.videoUrl ?? '').trim()
+        if (!url) e.videoUrl = 'Please paste your video link — this is required.'
+        else if (!/^https?:\/\/.+/i.test(url))
+          e.videoUrl = 'Enter a valid link starting with http:// or https://'
+      }
       return e
     },
     [form],
@@ -143,13 +143,14 @@ export default function FounderWizard() {
 
   const handleSubmit = useCallback(() => {
     // Final guard across steps.
-    const all = { ...validateStep(0), ...validateStep(1) }
+    const all = { ...validateStep(0), ...validateStep(1), ...validateStep(2) }
     if (!form.consentDataProcessing) all.consentDataProcessing = 'This consent is required to submit.'
     if (Object.keys(all).length > 0) {
       setErrors(all)
       if (all.fullName || all.email || all.phone || all.district) goToStep(0)
       else if (all.stage || all.sector || all.oneLiner || all.problem || all.whatBuilt || all.lookingFor)
         goToStep(1)
+      else if (all.videoUrl) goToStep(2)
       return
     }
 
@@ -191,7 +192,7 @@ export default function FounderWizard() {
   }, [form, validateStep, goToStep, addFounderApplication, signIn])
 
   const stepValid = useMemo(() => {
-    if (step === 0 || step === 1) return Object.keys(validateStep(step)).length === 0
+    if (step <= 2) return Object.keys(validateStep(step)).length === 0
     return true
   }, [step, validateStep])
 
@@ -238,8 +239,6 @@ export default function FounderWizard() {
       </ApplyShell>
     )
   }
-
-  const hasVideo = !!form.videoUrl
 
   // ---- wizard ---------------------------------------------------------------
   return (
@@ -304,73 +303,48 @@ export default function FounderWizard() {
         <div className="animate-fade-up">
           <StepHeading
             eyebrow="Step 03 · Your story"
-            title="Tell us your story (optional)"
-            subtitle="A short 60-second video helps us understand you and your vision. You can skip this."
+            title="Tell us your story"
+            subtitle="Share a short video about yourself and your journey — paste a YouTube or video link below. This is required."
           />
 
-          {videoMode === 'record' && (
-            <VideoRecorder
-              onUse={(_f, url, dur) => {
-                set('videoUrl', url)
-                set('videoDuration', dur)
-                setVideoMode('idle')
-              }}
-              onCancel={() => setVideoMode('idle')}
-            />
-          )}
-          {videoMode === 'upload' && (
-            <VideoUploader
-              onSelect={(_f, url, dur) => {
-                set('videoUrl', url)
-                set('videoDuration', dur)
-                setVideoMode('idle')
-              }}
-              onCancel={() => setVideoMode('idle')}
-            />
-          )}
-
-          {videoMode === 'idle' && !hasVideo && (
-            <div className="group rounded-2xl border-2 border-dashed border-line bg-surface/60 px-6 py-14 text-center transition-colors duration-300 hover:border-accent/40 hover:bg-accent-soft/20">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent">
-                <Video className="h-7 w-7" aria-hidden="true" />
-              </div>
-              <p className="text-base font-medium text-ink">Record a video</p>
-              <p className="mt-1 text-sm text-muted">Up to 60 seconds</p>
-              <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-                <Button onClick={() => setVideoMode('record')} fullWidthOnMobile>
-                  <Camera className="h-4 w-4" aria-hidden="true" /> Record Video
-                </Button>
-                <Button variant="secondary" onClick={() => setVideoMode('upload')} fullWidthOnMobile>
-                  <Upload className="h-4 w-4" aria-hidden="true" /> Upload Video
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {videoMode === 'idle' && hasVideo && (
-            <div className="animate-fade-in overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
-              <video src={form.videoUrl!} controls playsInline className="aspect-video w-full bg-black object-cover" />
-              <div className="flex flex-wrap items-center justify-between gap-3 p-4">
-                <p className="text-sm text-muted">
-                  {form.videoDuration ? `${form.videoDuration}s · ` : ''}Ready
+          <div className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+            <div className="mb-4 flex items-start gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                <Video className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="text-sm font-medium text-ink">Your story video</p>
+                <p className="mt-0.5 text-xs text-muted">
+                  Record a short video about yourself, your journey and your idea, upload it to
+                  YouTube (or Google Drive), and paste the link here.
                 </p>
-                <div className="flex gap-3">
-                  <Button variant="secondary" onClick={() => setVideoMode('record')}>
-                    <RotateCcw className="h-4 w-4" aria-hidden="true" /> Record Again
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      set('videoUrl', null)
-                      set('videoDuration', null)
-                    }}
-                  >
-                    Remove
-                  </Button>
-                </div>
               </div>
             </div>
-          )}
+
+            <FormInput
+              label="Video link (YouTube or video URL)"
+              name="videoUrl"
+              type="url"
+              required
+              placeholder="https://youtube.com/watch?v=..."
+              hint="Make sure the link is public / viewable by anyone with the link."
+              value={form.videoUrl ?? ''}
+              error={errors.videoUrl}
+              onChange={(e) => set('videoUrl', e.target.value)}
+            />
+
+            {form.videoUrl && /^https?:\/\/.+/i.test(form.videoUrl.trim()) && (
+              <a
+                href={form.videoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:text-ink"
+              >
+                <Video className="h-4 w-4" aria-hidden="true" />
+                Preview your link
+              </a>
+            )}
+          </div>
 
           {/* Optional pitch deck (dummy — filename only, no real upload yet) */}
           <div className="mt-6 rounded-2xl border border-line bg-surface p-4">
@@ -397,9 +371,8 @@ export default function FounderWizard() {
             <Button variant="secondary" onClick={() => goToStep(1)} fullWidthOnMobile>
               <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back
             </Button>
-            <Button onClick={() => goToStep(3)} fullWidthOnMobile>
-              {hasVideo ? 'Continue' : 'Skip for now'}
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <Button onClick={handleNext} fullWidthOnMobile>
+              Continue <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         </div>
@@ -427,11 +400,18 @@ export default function FounderWizard() {
               <Row label="Summary" value={form.oneLiner} block />
               <Row label="Support" value={form.lookingFor.map((l) => LOOKING_FOR.find((o) => o.value === l)?.label).join(', ')} />
             </ReviewCard>
-            <ReviewCard title="Your story" onEdit={() => goToStep(2)} editLabel={hasVideo ? 'Replace' : 'Add video'}>
-              {hasVideo ? (
-                <video src={form.videoUrl!} controls playsInline className="aspect-video w-full rounded-xl bg-black object-cover sm:w-64" />
+            <ReviewCard title="Your story" onEdit={() => goToStep(2)} editLabel="Edit">
+              {form.videoUrl ? (
+                <a
+                  href={form.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="break-all text-sm font-medium text-accent hover:text-ink"
+                >
+                  {form.videoUrl}
+                </a>
               ) : (
-                <p className="text-sm italic text-muted/70">No video added (optional)</p>
+                <p className="text-sm italic text-muted/70">No video link added</p>
               )}
             </ReviewCard>
           </div>

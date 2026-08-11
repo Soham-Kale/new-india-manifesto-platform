@@ -477,9 +477,11 @@ export function VisionBand() {
    WORK GRID — real photos of the movement
    ============================================================ */
 export function WorkGrid() {
+  // Duplicate the list so the marquee loops seamlessly (translateX -50%).
+  const track = [...WORK, ...WORK]
   return (
     <section className="border-b border-line">
-      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-24">
+      <div className="mx-auto max-w-6xl px-5 pt-16 sm:px-8 lg:pt-24">
         <div className="max-w-2xl">
           <Eyebrow>Work on the ground</Eyebrow>
           <h2 className="mt-4 font-display text-3xl font-bold tracking-tight text-ink sm:text-[2.5rem]">
@@ -490,12 +492,15 @@ export function WorkGrid() {
             each one not just an institution, but a movement.
           </p>
         </div>
+      </div>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {WORK.map((w) => (
+      {/* Horizontal auto-scrolling carousel (pauses on hover) */}
+      <div className="group relative mt-12 overflow-hidden pb-16 lg:pb-24">
+        <div className="flex w-max gap-5 pl-5 animate-marquee group-hover:[animation-play-state:paused] sm:pl-8">
+          {track.map((w, i) => (
             <article
-              key={w.title}
-              className="group overflow-hidden rounded-3xl border border-line bg-surface shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lift"
+              key={`${w.title}-${i}`}
+              className="w-[280px] shrink-0 overflow-hidden rounded-3xl border border-line bg-surface shadow-card sm:w-[320px]"
             >
               <div className="relative aspect-[16/10] overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -503,7 +508,7 @@ export function WorkGrid() {
                   src={w.img}
                   alt={w.title}
                   loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-[600ms] group-hover:scale-[1.06]"
+                  className="h-full w-full object-cover"
                 />
                 <span
                   aria-hidden="true"
@@ -517,6 +522,16 @@ export function WorkGrid() {
             </article>
           ))}
         </div>
+
+        {/* edge fades */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-linear-to-r from-canvas to-transparent sm:w-20"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-canvas to-transparent sm:w-20"
+        />
       </div>
     </section>
   )

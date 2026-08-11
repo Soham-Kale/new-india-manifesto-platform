@@ -63,10 +63,10 @@ export default function SiteHeader() {
           className="flex flex-col rounded-full bg-surface/90 px-4 py-2 leading-none shadow-card ring-1 ring-line backdrop-blur"
         >
           <span className="font-display text-base font-bold tracking-tight text-ink sm:text-lg">
-            Rohan Deshmukh
-          </span>
-          <span className="mt-0.5 text-[9px] uppercase tracking-[0.2em] text-accent sm:text-[10px]">
             The New India Manifesto
+          </span>
+          <span className="mt-0.5 text-center text-[9px] uppercase tracking-[0.2em] text-accent sm:text-[10px]">
+            Rohan Deshmukh
           </span>
         </Link>
 

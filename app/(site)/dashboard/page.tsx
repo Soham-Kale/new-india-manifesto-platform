@@ -1,23 +1,68 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { CheckCircle2, Clock, FileText } from 'lucide-react'
 import { useMockAuth } from '@/lib/MockAuthProvider'
 import { useMockData } from '@/lib/MockDataProvider'
+import { api, apiEnabled } from '@/lib/api'
 import { toPublicStatus, PUBLIC_STATUS_LABEL, labelStage, labelSector } from '@/lib/options'
-import Button from '@/components/ui/Button'
+import type { FounderStage, Sector } from '@/lib/types'
+
+type StatusView = {
+  ventureName: string | null
+  stage: FounderStage
+  sector: Sector
+  publicStatus: 'received' | 'under_review'
+  createdAt: string
+} | null
 
 export default function DashboardPage() {
-  const { currentUser, ready } = useMockAuth()
+  const { currentUser, token, ready } = useMockAuth()
   const { findFounderByEmail, ready: dataReady } = useMockData()
 
-  if (!ready || !dataReady) {
+  // Prefer the real backend (cross-device) when a JWT session exists.
+  const useBackend = apiEnabled() && !!token
+  const [loading, setLoading] = useState(useBackend)
+  const [backendApp, setBackendApp] = useState<StatusView>(null)
+
+  useEffect(() => {
+    let active = true
+    if (useBackend && token) {
+      setLoading(true)
+      api.founderStatus(token).then((res) => {
+        if (!active) return
+        setBackendApp((res.data as StatusView) ?? null)
+        setLoading(false)
+      })
+    }
+    return () => {
+      active = false
+    }
+  }, [useBackend, token])
+
+  if (!ready || (!useBackend && !dataReady) || (useBackend && loading)) {
     return <div className="mx-auto max-w-2xl px-5 py-24 text-center text-muted">Loading…</div>
   }
 
-  const application = currentUser ? findFounderByEmail(currentUser.email) : undefined
+  // Resolve the application view from whichever source is active.
+  let view: StatusView = null
+  if (useBackend) {
+    view = backendApp
+  } else {
+    const app = currentUser ? findFounderByEmail(currentUser.email) : undefined
+    if (app) {
+      view = {
+        ventureName: app.ventureName,
+        stage: app.stage,
+        sector: app.sector,
+        publicStatus: toPublicStatus(app.internalStatus),
+        createdAt: app.createdAt,
+      }
+    }
+  }
 
-  if (!application) {
+  if (!view) {
     return (
       <div className="mx-auto max-w-2xl px-5 py-20 text-center sm:px-8">
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
@@ -40,7 +85,7 @@ export default function DashboardPage() {
   }
 
   // Applicant only ever sees Received → Under review (never internal decisions).
-  const publicStatus = toPublicStatus(application.internalStatus)
+  const publicStatus = view.publicStatus
   const stages = [
     { key: 'received', label: 'Received', icon: CheckCircle2 },
     { key: 'under_review', label: 'Under review', icon: Clock },
@@ -50,10 +95,10 @@ export default function DashboardPage() {
     <div className="mx-auto max-w-2xl px-5 py-14 sm:px-8 lg:py-16">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Your application</p>
       <h1 className="mt-3 font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl">
-        {application.ventureName || 'Your idea'}
+        {view.ventureName || 'Your idea'}
       </h1>
       <p className="mt-2 text-muted">
-        {labelStage(application.stage)} · {labelSector(application.sector)}
+        {labelStage(view.stage)} · {labelSector(view.sector)}
       </p>
 
       {/* Status track */}
@@ -93,7 +138,7 @@ export default function DashboardPage() {
       </div>
 
       <p className="mt-6 text-center text-xs text-muted">
-        Submitted {new Date(application.createdAt).toLocaleDateString('en-IN', {
+        Submitted {new Date(view.createdAt).toLocaleDateString('en-IN', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',

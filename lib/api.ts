@@ -49,8 +49,11 @@ export const api = {
   submitExpert: (p: Record<string, unknown>) => request('POST', '/applications/expert', p),
   submitPledge: (p: Record<string, unknown>) => request('POST', '/pledge', p),
 
-  // Auth (email OTP → JWT) — available for wiring the login flow later.
+  // Auth (email OTP → JWT).
   requestOtp: (email: string) => request('POST', '/auth/otp/request', { email }),
   verifyOtp: (email: string, code: string) => request('POST', '/auth/otp/verify', { email, code }),
   me: (token: string) => request('GET', '/auth/me', undefined, token),
+
+  // A founder's own application status (public status only).
+  founderStatus: (token: string) => request('GET', '/applications/founder/me', undefined, token),
 }

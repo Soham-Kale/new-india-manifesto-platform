@@ -11,6 +11,7 @@ import {
 import type { User, Role, Identity, District } from './types'
 
 const KEY = 'nim.auth.v1'
+const TOKEN_KEY = 'nim.token.v1'
 
 interface SignInInput {
   email: string
@@ -20,11 +21,23 @@ interface SignInInput {
   district?: District
 }
 
+// The user shape returned by the backend /auth/otp/verify + /auth/me.
+interface BackendUser {
+  id: string
+  email: string
+  fullName?: string
+  role: Role
+  district?: District
+  status?: 'active' | 'suspended'
+}
+
 interface MockAuthContextValue {
   currentUser: User | null
   identity: Identity
+  token: string | null
   ready: boolean
   signIn: (input: SignInInput) => User
+  signInWithSession: (session: { accessToken: string; user: BackendUser }) => User
   switchRole: (identity: Identity) => void
   logout: () => void
 }
@@ -86,12 +99,15 @@ const DEMO_USERS: Record<Role, User> = {
 
 export function MockAuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [token, setToken] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(KEY)
       if (raw) setCurrentUser(JSON.parse(raw) as User)
+      const t = window.localStorage.getItem(TOKEN_KEY)
+      if (t) setToken(t)
     } catch {
       /* ignore */
     }
@@ -107,6 +123,37 @@ export function MockAuthProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
   }, [])
+
+  const persistToken = useCallback((t: string | null) => {
+    setToken(t)
+    try {
+      if (t) window.localStorage.setItem(TOKEN_KEY, t)
+      else window.localStorage.removeItem(TOKEN_KEY)
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  // Real backend session (email-OTP → JWT).
+  const signInWithSession = useCallback(
+    (session: { accessToken: string; user: BackendUser }): User => {
+      const u = session.user
+      const user: User = {
+        id: u.id,
+        email: u.email,
+        phone: '',
+        fullName: u.fullName ?? u.email.split('@')[0],
+        role: u.role,
+        district: u.district ?? 'other',
+        status: u.status ?? 'active',
+        createdAt: new Date().toISOString(),
+      }
+      persistToken(session.accessToken)
+      persist(user)
+      return user
+    },
+    [persist, persistToken],
+  )
 
   const signIn = useCallback(
     (input: SignInInput): User => {
@@ -134,13 +181,16 @@ export function MockAuthProvider({ children }: { children: ReactNode }) {
     [persist],
   )
 
-  const logout = useCallback(() => persist(null), [persist])
+  const logout = useCallback(() => {
+    persist(null)
+    persistToken(null)
+  }, [persist, persistToken])
 
   const identity: Identity = currentUser?.role ?? 'guest'
 
   return (
     <MockAuthContext.Provider
-      value={{ currentUser, identity, ready, signIn, switchRole, logout }}
+      value={{ currentUser, identity, token, ready, signIn, signInWithSession, switchRole, logout }}
     >
       {children}
     </MockAuthContext.Provider>

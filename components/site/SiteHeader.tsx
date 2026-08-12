@@ -5,9 +5,15 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ChevronDown, Menu, X, LayoutDashboard } from 'lucide-react'
 import { useMockAuth } from '@/lib/MockAuthProvider'
+import { apiEnabled } from '@/lib/api'
 import { useT } from '@/lib/i18n'
 import PillLink from '@/components/ui/PillLink'
 import LangToggle from '@/components/site/LangToggle'
+
+// Only surface the real "Login / Check status" entry once a backend is wired
+// (NEXT_PUBLIC_API_URL set). Without it, login can't retrieve real status, so
+// we don't expose the insecure mock login on the public site.
+const LOGIN_ENABLED = apiEnabled()
 
 const NAV = [
   { key: 'book', href: '/book' },
@@ -25,7 +31,7 @@ const APPLY = [
 
 export default function SiteHeader() {
   const pathname = usePathname()
-  const { identity } = useMockAuth()
+  const { identity, logout } = useMockAuth()
   const { t } = useT()
   const [menuOpen, setMenuOpen] = useState(false)
   const [applyOpen, setApplyOpen] = useState(false)
@@ -59,27 +65,27 @@ export default function SiteHeader() {
         hidden ? '-translate-y-[150%]' : 'translate-y-0'
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2">
         {/* Wordmark */}
         <Link
           href="/"
           className="flex flex-col rounded-full bg-surface/90 px-4 py-2 leading-none shadow-card ring-1 ring-line backdrop-blur"
         >
-          <span className="font-display text-base font-bold tracking-tight text-ink sm:text-lg">
+          <span className="whitespace-nowrap font-display text-[15px] font-bold tracking-tight text-ink lg:text-base">
             {t('nav.manifesto')}
           </span>
-          <span className="mt-0.5 text-center text-[9px] uppercase tracking-[0.2em] text-accent sm:text-[12px]">
+          <span className="mt-0.5 text-center text-[9px] uppercase tracking-[0.2em] text-accent sm:text-[11px]">
             {t('home.hero.author')}
           </span>
         </Link>
 
         {/* Centered pill nav (desktop) */}
-        <nav className="hidden items-center gap-1 rounded-full bg-surface/90 p-1.5 shadow-card ring-1 ring-line backdrop-blur lg:flex">
+        <nav className="hidden items-center gap-0.5 rounded-full bg-surface/90 p-1 shadow-card ring-1 ring-line backdrop-blur lg:flex">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              className={`whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium transition-colors ${
                 isActive(item.href)
                   ? 'bg-accent text-white'
                   : 'text-muted hover:bg-accent-soft hover:text-accent'
@@ -98,7 +104,7 @@ export default function SiteHeader() {
             <button
               type="button"
               onClick={() => setApplyOpen((v) => !v)}
-              className={`flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium transition-colors ${
                 pathname.startsWith('/apply')
                   ? 'bg-accent text-white'
                   : 'text-muted hover:bg-accent-soft hover:text-accent'
@@ -140,12 +146,39 @@ export default function SiteHeader() {
               {t('nav.dashboard')}
             </Link>
           )}
+          {identity === 'founder' && (
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-accent-soft hover:text-accent"
+            >
+              <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+              {t('nav.checkStatus')}
+            </Link>
+          )}
         </nav>
 
         {/* Right cluster (desktop) */}
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-1.5 lg:flex">
           <LangToggle />
-          <PillLink href="/pledge" variant="accent">
+          {identity !== 'guest' ? (
+            <button
+              type="button"
+              onClick={logout}
+              className="whitespace-nowrap rounded-full bg-surface/90 px-3 py-2 text-sm font-medium text-muted shadow-card ring-1 ring-line backdrop-blur transition-colors hover:text-accent"
+            >
+              {t('nav.logout')}
+            </button>
+          ) : (
+            LOGIN_ENABLED && (
+              <Link
+                href="/login"
+                className="whitespace-nowrap rounded-full bg-surface/90 px-3 py-2 text-sm font-medium text-ink shadow-card ring-1 ring-line backdrop-blur transition-colors hover:text-accent"
+              >
+                {t('nav.login')}
+              </Link>
+            )
+          )}
+          <PillLink href="/pledge" variant="accent" className="whitespace-nowrap pl-5">
             {t('nav.join')}
           </PillLink>
         </div>
@@ -209,6 +242,38 @@ export default function SiteHeader() {
               >
                 {t('nav.myDashboard')}
               </Link>
+            )}
+            {identity === 'founder' && (
+              <Link
+                href="/dashboard"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-xl px-3 py-2.5 text-sm font-medium text-accent hover:bg-accent-soft"
+              >
+                {t('nav.checkStatus')}
+              </Link>
+            )}
+
+            {identity !== 'guest' ? (
+              <button
+                type="button"
+                onClick={() => {
+                  logout()
+                  setMenuOpen(false)
+                }}
+                className="mt-2 rounded-xl border border-line px-3 py-2.5 text-center text-sm font-medium text-muted hover:bg-accent-soft"
+              >
+                {t('nav.logout')}
+              </button>
+            ) : (
+              LOGIN_ENABLED && (
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="mt-2 rounded-xl border border-line px-3 py-2.5 text-center text-sm font-medium text-ink hover:bg-accent-soft"
+                >
+                  {t('nav.login')}
+                </Link>
+              )
             )}
             <Link
               href="/pledge"

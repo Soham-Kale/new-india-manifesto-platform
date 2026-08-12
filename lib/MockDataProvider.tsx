@@ -22,6 +22,7 @@ import type {
   FulfillmentStatus,
 } from './types'
 import { loadStore, saveStore, resetStore, emptyStore, newId, nowIso } from './store'
+import { api } from './api'
 
 type NewFounder = Omit<FounderApplication, 'id' | 'createdAt' | 'internalStatus'>
 type NewMentor = Omit<MentorProfile, 'id' | 'createdAt' | 'approvalStatus'>
@@ -102,6 +103,27 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
         ...s,
         founderApplications: [record, ...s.founderApplications],
       }))
+      // Persist to the backend (no-op if NEXT_PUBLIC_API_URL is unset).
+      void api.submitFounder({
+        fullName: input.fullName,
+        email: input.email,
+        phone: input.phone,
+        district: input.district,
+        ventureName: input.ventureName,
+        stage: input.stage,
+        sector: input.sector,
+        oneLiner: input.oneLiner,
+        problem: input.problem,
+        whatBuilt: input.whatBuilt,
+        teamSize: input.teamSize,
+        lookingFor: input.lookingFor,
+        capitalContext: input.capitalContext,
+        links: input.links,
+        videoUrl: input.videoUrl,
+        consentDataProcessing: input.consentDataProcessing,
+        consentShareWithMentors: input.consentShareWithMentors,
+        consentCampaignUpdates: input.consentCampaignUpdates,
+      })
       return { ok: true, record }
     },
     [store.founderApplications],
@@ -115,6 +137,19 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
       createdAt: nowIso(),
     }
     setStore((s) => ({ ...s, mentorProfiles: [record, ...s.mentorProfiles] }))
+    void api.submitMentor({
+      fullName: input.fullName,
+      email: input.email,
+      phone: input.phone,
+      expertiseAreas: input.expertiseAreas,
+      sectors: input.sectors,
+      roleCompany: input.roleCompany,
+      yearsExperience: input.yearsExperience,
+      capacity: input.capacity,
+      linkedin: input.linkedin,
+      bio: input.bio,
+      consent: true, // the form enforces consent before this runs
+    })
     return record
   }, [])
 
@@ -126,6 +161,19 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
       createdAt: nowIso(),
     }
     setStore((s) => ({ ...s, investorProfiles: [record, ...s.investorProfiles] }))
+    void api.submitInvestor({
+      fullName: input.fullName,
+      email: input.email,
+      phone: input.phone,
+      investorType: input.investorType,
+      ticketMin: input.ticketMin,
+      ticketMax: input.ticketMax,
+      sectors: input.sectors,
+      stageFocus: input.stageFocus,
+      firmName: input.firmName,
+      linkedin: input.linkedin,
+      consent: true,
+    })
     return record
   }, [])
 
@@ -137,6 +185,16 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
       createdAt: nowIso(),
     }
     setStore((s) => ({ ...s, expertProfiles: [record, ...s.expertProfiles] }))
+    void api.submitExpert({
+      fullName: input.fullName,
+      email: input.email,
+      phone: input.phone,
+      domain: input.domain,
+      contribution: input.contribution,
+      bio: input.bio,
+      linkedin: input.linkedin,
+      consent: true,
+    })
     return record
   }, [])
 
@@ -157,6 +215,14 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
   const addPledge = useCallback((input: NewPledge): Pledge => {
     const record: Pledge = { ...input, id: newId('pl'), createdAt: nowIso() }
     setStore((s) => ({ ...s, pledges: [record, ...s.pledges] }))
+    void api.submitPledge({
+      name: input.name,
+      email: input.email,
+      phone: input.phone,
+      district: input.district,
+      commitment: input.commitment,
+      consent: input.consentCampaignUpdates,
+    })
     return record
   }, [])
 

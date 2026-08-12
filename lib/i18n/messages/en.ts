@@ -372,7 +372,7 @@ export const en = {
     videoLabel: 'Video link (YouTube or video URL)',
     videoHint: 'Make sure the link is public / viewable by anyone with the link.',
     videoPreview: 'Preview your link',
-    deckTitle: 'Pitch deck (optional)',
+    // deckTitle: 'Pitch deck (optional)',
     deckDesc: 'PDF or slides — helps us understand your plan.',
     deckChoose: 'Choose file',
     deckReplace: 'Replace file',

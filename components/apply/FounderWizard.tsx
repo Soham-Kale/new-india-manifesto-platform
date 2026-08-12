@@ -325,7 +325,7 @@ export default function FounderWizard() {
           </div>
 
           {/* Optional pitch deck (dummy — filename only, no real upload yet) */}
-          <div className="mt-6 rounded-2xl border border-line bg-surface p-4">
+          {/* <div className="mt-6 rounded-2xl border border-line bg-surface p-4">
             <p className="text-sm font-medium text-ink">{t('apply.deckTitle')}</p>
             <p className="mt-0.5 text-xs text-muted">{t('apply.deckDesc')}</p>
             <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -341,7 +341,7 @@ export default function FounderWizard() {
               </label>
               {form.pitchDeckName && <span className="text-sm text-muted">{form.pitchDeckName}</span>}
             </div>
-          </div>
+          </div> */}
 
           <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
             <Button variant="secondary" onClick={() => goToStep(1)} fullWidthOnMobile>

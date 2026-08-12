@@ -490,7 +490,7 @@ export function WorkGrid() {
 }
 
 /* ============================================================
-   AUTHOR VIDEO
+  AUTHOR VIDEO
    ============================================================ */
 export function AuthorVideo() {
   const { t } = useT()
@@ -525,9 +525,9 @@ export function AuthorVideo() {
    CONTACT (used on /rohan)
    ============================================================ */
 const CONTACTS = [
-  { icon: Phone, key: 'call', value: '+91 82087 37624', href: 'tel:+918208737624' },
-  { icon: MessageCircle, key: 'whatsapp', value: '+91 82087 37624', href: 'https://wa.me/918208737624' },
-  { icon: Mail, key: 'email', value: 'rohandeshmukh@gmail.com', href: 'mailto:rohandeshmukh@gmail.com' },
+  { icon: Phone, key: 'call', value: '+91 8208737624', href: 'tel:+918208737624' },
+  { icon: MessageCircle, key: 'whatsapp', value: '+91 8208737624', href: 'https://wa.me/918208737624' },
+  { icon: Mail, key: 'email', value: 'connect@rohandeshmukh.in', href: 'mailto:connect@rohandeshmukh.in' },
   { icon: MapPin, key: 'office', value: null, href: null },
 ] as const
 

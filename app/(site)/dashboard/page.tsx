@@ -6,7 +6,8 @@ import { CheckCircle2, Clock, FileText } from 'lucide-react'
 import { useMockAuth } from '@/lib/MockAuthProvider'
 import { useMockData } from '@/lib/MockDataProvider'
 import { api, apiEnabled } from '@/lib/api'
-import { toPublicStatus, PUBLIC_STATUS_LABEL, labelStage, labelSector } from '@/lib/options'
+import { toPublicStatus } from '@/lib/options'
+import { useT, useOptions } from '@/lib/i18n'
 import type { FounderStage, Sector } from '@/lib/types'
 
 type StatusView = {
@@ -20,6 +21,8 @@ type StatusView = {
 export default function DashboardPage() {
   const { currentUser, token, ready } = useMockAuth()
   const { findFounderByEmail, ready: dataReady } = useMockData()
+  const { t, lang } = useT()
+  const { stages, sectors } = useOptions()
 
   // Prefer the real backend (cross-device) when a JWT session exists.
   const useBackend = apiEnabled() && !!token
@@ -30,11 +33,20 @@ export default function DashboardPage() {
     let active = true
     if (useBackend && token) {
       setLoading(true)
-      api.founderStatus(token).then((res) => {
-        if (!active) return
-        setBackendApp((res.data as StatusView) ?? null)
-        setLoading(false)
-      })
+      api
+        .founderStatus(token)
+        .then((res) => {
+          if (!active) return
+          const d = res.data as StatusView
+          setBackendApp(d && d.publicStatus ? d : null)
+          setLoading(false)
+        })
+        .catch(() => {
+          if (active) {
+            setBackendApp(null)
+            setLoading(false)
+          }
+        })
     }
     return () => {
       active = false
@@ -42,15 +54,17 @@ export default function DashboardPage() {
   }, [useBackend, token])
 
   if (!ready || (!useBackend && !dataReady) || (useBackend && loading)) {
-    return <div className="mx-auto max-w-2xl px-5 py-24 text-center text-muted">Loading…</div>
+    return (
+      <div className="mx-auto max-w-2xl px-5 py-24 text-center text-muted">{t('dashboard.loading')}</div>
+    )
   }
 
   // Resolve the application view from whichever source is active.
   let view: StatusView = null
   if (useBackend) {
     view = backendApp
-  } else {
-    const app = currentUser ? findFounderByEmail(currentUser.email) : undefined
+  } else if (currentUser) {
+    const app = findFounderByEmail(currentUser.email)
     if (app) {
       view = {
         ventureName: app.ventureName,
@@ -62,50 +76,55 @@ export default function DashboardPage() {
     }
   }
 
-  if (!view) {
+  // Not signed in and nothing to show → prompt to sign in.
+  if (!view && !currentUser && !token) {
     return (
-      <div className="mx-auto max-w-2xl px-5 py-20 text-center sm:px-8">
-        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
-          <FileText className="h-6 w-6" aria-hidden="true" />
-        </span>
-        <h1 className="mt-5 font-serif text-3xl font-medium tracking-tight text-ink">
-          No application yet
-        </h1>
-        <p className="mt-3 text-muted">
-          Once you apply to be incubated, you&apos;ll be able to track your application status here.
-        </p>
-        <Link
-          href="/apply/founder"
-          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-ink px-6 py-3.5 text-sm font-medium text-canvas transition hover:bg-accent"
-        >
-          Apply to be incubated
-        </Link>
-      </div>
+      <StatusEmpty
+        icon
+        title={t('dashboard.eyebrow')}
+        body={t('dashboard.loginPrompt')}
+        href="/login"
+        cta={t('dashboard.loginCta')}
+      />
     )
   }
 
-  // Applicant only ever sees Received → Under review (never internal decisions).
+  if (!view) {
+    return (
+      <StatusEmpty
+        title={t('dashboard.noneTitle')}
+        body={t('dashboard.noneBody')}
+        href="/apply/founder"
+        cta={t('dashboard.applyCta')}
+      />
+    )
+  }
+
+  const stageLabel = stages.find((s) => s.value === view!.stage)?.label ?? view.stage
+  const sectorLabel = sectors.find((s) => s.value === view!.sector)?.label ?? view.sector
   const publicStatus = view.publicStatus
-  const stages = [
-    { key: 'received', label: 'Received', icon: CheckCircle2 },
-    { key: 'under_review', label: 'Under review', icon: Clock },
+  const steps = [
+    { key: 'received', label: t('dashboard.received'), icon: CheckCircle2 },
+    { key: 'under_review', label: t('dashboard.underReview'), icon: Clock },
   ] as const
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-14 sm:px-8 lg:py-16">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Your application</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+        {t('dashboard.eyebrow')}
+      </p>
       <h1 className="mt-3 font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl">
-        {view.ventureName || 'Your idea'}
+        {view.ventureName || t('dashboard.yourIdea')}
       </h1>
       <p className="mt-2 text-muted">
-        {labelStage(view.stage)} · {labelSector(view.sector)}
+        {stageLabel} · {sectorLabel}
       </p>
 
       {/* Status track */}
       <div className="mt-8 rounded-2xl border border-line bg-surface p-6 shadow-card">
-        <p className="text-sm font-medium text-ink">Status</p>
+        <p className="text-sm font-medium text-ink">{t('dashboard.statusHeading')}</p>
         <div className="mt-5 space-y-4">
-          {stages.map((s) => {
+          {steps.map((s) => {
             const reached =
               s.key === 'received' || (s.key === 'under_review' && publicStatus === 'under_review')
             const Icon = s.icon
@@ -123,7 +142,7 @@ export default function DashboardPage() {
                     {s.label}
                   </p>
                   {reached && publicStatus === s.key && (
-                    <p className="text-xs text-muted">Current status</p>
+                    <p className="text-xs text-muted">{t('dashboard.current')}</p>
                   )}
                 </div>
               </div>
@@ -131,19 +150,47 @@ export default function DashboardPage() {
           })}
         </div>
         <div className="mt-6 rounded-xl bg-accent-soft/60 px-4 py-3 text-sm text-ink">
-          {PUBLIC_STATUS_LABEL[publicStatus] === 'Received'
-            ? "We've received your application and you're on the waitlist. We'll reach out if there's a fit."
-            : "Your application is under review. We'll be in touch — thank you for your patience."}
+          {publicStatus === 'received' ? t('dashboard.msgReceived') : t('dashboard.msgUnderReview')}
         </div>
       </div>
 
       <p className="mt-6 text-center text-xs text-muted">
-        Submitted {new Date(view.createdAt).toLocaleDateString('en-IN', {
+        {t('dashboard.submitted')}{' '}
+        {new Date(view.createdAt).toLocaleDateString(lang === 'mr' ? 'mr-IN' : 'en-IN', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
         })}
       </p>
+    </div>
+  )
+}
+
+function StatusEmpty({
+  title,
+  body,
+  href,
+  cta,
+}: {
+  icon?: boolean
+  title: string
+  body: string
+  href: string
+  cta: string
+}) {
+  return (
+    <div className="mx-auto max-w-2xl px-5 py-20 text-center sm:px-8">
+      <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+        <FileText className="h-6 w-6" aria-hidden="true" />
+      </span>
+      <h1 className="mt-5 font-serif text-3xl font-medium tracking-tight text-ink">{title}</h1>
+      <p className="mt-3 text-muted">{body}</p>
+      <Link
+        href={href}
+        className="mt-8 inline-flex items-center gap-2 rounded-xl bg-ink px-6 py-3.5 text-sm font-medium text-canvas transition hover:bg-accent"
+      >
+        {cta}
+      </Link>
     </div>
   )
 }

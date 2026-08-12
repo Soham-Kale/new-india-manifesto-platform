@@ -54,6 +54,27 @@ export const en = {
     roleLabel: 'Sign in as',
   },
 
+  dashboard: {
+    eyebrow: 'Your application',
+    yourIdea: 'Your idea',
+    statusHeading: 'Status',
+    received: 'Received',
+    underReview: 'Under review',
+    current: 'Current status',
+    msgReceived:
+      "We've received your application and you're on the waitlist. We'll reach out if there's a fit.",
+    msgUnderReview:
+      "Your application is under review. We'll be in touch — thank you for your patience.",
+    submitted: 'Submitted',
+    loading: 'Loading…',
+    noneTitle: 'No application yet',
+    noneBody:
+      "Once you apply to be incubated, you'll be able to track your application status here.",
+    applyCta: 'Apply to be incubated',
+    loginPrompt: 'Sign in to view your application status.',
+    loginCta: 'Sign in',
+  },
+
   home: {
     hero: {
       eyebrow: 'A manifesto for a self-reliant India',

@@ -81,6 +81,24 @@ export default function PledgePage() {
         <p className="mt-3 text-muted">{t('pledge.subcopy')}</p>
       </div>
 
+      {/* What a pledge is + how it helps rural India */}
+      <div className="mb-8 rounded-2xl border border-line bg-surface/60 p-6 sm:p-7">
+        <h2 className="font-display text-lg font-semibold text-ink">{t('pledge.aboutHeading')}</h2>
+        <p className="mt-2 text-[15px] leading-relaxed text-muted">{t('pledge.aboutBody')}</p>
+
+        <h3 className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+          {t('pledge.helpHeading')}
+        </h3>
+        <ul className="mt-3 space-y-2.5">
+          {['pledge.help1', 'pledge.help2', 'pledge.help3'].map((k) => (
+            <li key={k} className="flex gap-2.5 text-[15px] leading-relaxed text-ink">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+              <span>{t(k)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <form onSubmit={submit} className="space-y-5" noValidate>
         <FormInput
           label={t('pledge.fullName')}

@@ -1,21 +1,23 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { cookies } from 'next/headers'
-import { Poppins, Fraunces, Noto_Sans_Devanagari, Noto_Serif_Devanagari } from 'next/font/google'
+import { Parkinsans, Inter, Noto_Sans_Devanagari, Noto_Serif_Devanagari } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
 import type { Lang } from '@/lib/i18n'
 
-const poppins = Poppins({
-  variable: '--font-poppins',
+// Latin type: Parkinsans for headings/display, Inter for body — matched to the
+// campaign's editorial reference. Marathi swaps to Noto Devanagari (below).
+const parkinsans = Parkinsans({
+  variable: '--font-parkinsans',
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800'],
 })
 
-const fraunces = Fraunces({
-  variable: '--font-fraunces',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  weight: ['400', '500', '600', '700'],
 })
 
 const notoDeva = Noto_Sans_Devanagari({
@@ -44,7 +46,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html
       lang={lang}
       data-lang={lang}
-      className={`${poppins.variable} ${fraunces.variable} ${notoDeva.variable} ${notoDevaSerif.variable} h-full antialiased`}
+      className={`${parkinsans.variable} ${inter.variable} ${notoDeva.variable} ${notoDevaSerif.variable} h-full antialiased`}
     >
       <body className="flex min-h-screen flex-col bg-canvas text-ink">
         <Providers initialLang={lang}>{children}</Providers>

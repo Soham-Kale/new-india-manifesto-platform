@@ -320,6 +320,16 @@ export const en = {
   pledge: {
     title: 'Yes, I Am In',
     subcopy: 'Add your name to the movement in under a minute. No account needed.',
+    aboutHeading: 'What is a pledge?',
+    aboutBody:
+      'A pledge is a simple, free promise to stand with the movement to build a self-reliant New India — no money and no account needed. It takes under a minute, and it tells us you’re ready to help however you can.',
+    helpHeading: 'How your pledge helps rural India',
+    help1:
+      'It turns a movement into real programmes — the mentorship, funding and training that reach village entrepreneurs.',
+    help2:
+      'It maps supporters district by district, so opportunities and events reach the rural heartland, not just the cities.',
+    help3:
+      'It connects first-time founders in small towns to mentors, investors and a network they’d otherwise never reach.',
     fullName: 'Full name',
     email: 'Email',
     phone: 'Phone / WhatsApp',

@@ -34,7 +34,7 @@ export default function FounderCard({ app, match, contactRevealed, onExpressInte
       <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted">{app.problem}</p>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
-        {app.lookingFor.map((l) => (
+        {(app.lookingFor ?? []).map((l) => (
           <span key={l} className="rounded-full border border-line px-2 py-0.5 text-[11px] text-muted">
             {labelLookingFor(l)}
           </span>

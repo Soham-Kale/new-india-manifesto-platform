@@ -4,7 +4,6 @@ import { cookies } from 'next/headers'
 import { Poppins, Fraunces, Noto_Sans_Devanagari, Noto_Serif_Devanagari } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
-import RoleSwitcher from '@/components/site/RoleSwitcher'
 import type { Lang } from '@/lib/i18n'
 
 const poppins = Poppins({
@@ -37,10 +36,6 @@ export const metadata: Metadata = {
     'The New India Manifesto: Going Beyond Possible. Read the argument, take the pledge, and act — apply as a founder, mentor, investor or industry expert to help incubate India from its rural heartland.',
 }
 
-// Demo role-switcher is a dev tool — only render it when explicitly enabled.
-const showDemo =
-  process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || process.env.NODE_ENV !== 'production'
-
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   const cookieLang = (await cookies()).get('nim.lang')?.value
   const lang: Lang = cookieLang === 'en' ? 'en' : 'mr'
@@ -52,10 +47,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       className={`${poppins.variable} ${fraunces.variable} ${notoDeva.variable} ${notoDevaSerif.variable} h-full antialiased`}
     >
       <body className="flex min-h-screen flex-col bg-canvas text-ink">
-        <Providers initialLang={lang}>
-          {children}
-          {showDemo && <RoleSwitcher />}
-        </Providers>
+        <Providers initialLang={lang}>{children}</Providers>
       </body>
     </html>
   )

@@ -52,8 +52,38 @@ export const api = {
   // Auth (email OTP → JWT).
   requestOtp: (email: string) => request('POST', '/auth/otp/request', { email }),
   verifyOtp: (email: string, code: string) => request('POST', '/auth/otp/verify', { email, code }),
+  adminLogin: (email: string, password: string) =>
+    request('POST', '/auth/admin/login', { email, password }),
   me: (token: string) => request('GET', '/auth/me', undefined, token),
 
   // A founder's own application status (public status only).
   founderStatus: (token: string) => request('GET', '/applications/founder/me', undefined, token),
+
+  // ── Admin control room (all require an admin JWT) ───────────────────────
+  adminOverview: (token: string) => request('GET', '/admin/overview', undefined, token),
+  adminList: (token: string, collection: string, search = '') =>
+    request(
+      'GET',
+      `/admin/${collection}${search ? `?search=${encodeURIComponent(search)}` : ''}`,
+      undefined,
+      token,
+    ),
+  adminSetFounderStatus: (token: string, id: string, status: string) =>
+    request('PATCH', `/admin/founders/${id}/status`, { status }, token),
+  adminSetApproval: (token: string, kind: 'mentor' | 'investor' | 'expert', id: string, status: string) =>
+    request('PATCH', `/admin/${kind}/${id}/approval`, { status }, token),
+  adminSetMatchStatus: (token: string, id: string, status: string) =>
+    request('PATCH', `/admin/matches/${id}/status`, { status }, token),
+
+  // ── Mentor / investor deal-flow ─────────────────────────────────────────
+  listFounders: (token: string, search = '', sector = '') => {
+    const qs = new URLSearchParams()
+    if (search) qs.set('search', search)
+    if (sector) qs.set('sector', sector)
+    const suffix = qs.toString() ? `?${qs.toString()}` : ''
+    return request('GET', `/founders${suffix}`, undefined, token)
+  },
+  expressInterest: (token: string, founderApplicationId: string) =>
+    request('POST', '/matches', { founderApplicationId }, token),
+  myMatches: (token: string) => request('GET', '/matches/mine', undefined, token),
 }

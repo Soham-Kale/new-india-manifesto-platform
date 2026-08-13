@@ -22,15 +22,6 @@ const COLS = [
       { key: 'linkExpert', href: '/apply/expert' },
     ],
   },
-  {
-    titleKey: 'legal',
-    links: [
-      { key: 'linkPrivacy', href: '/privacy' },
-      { key: 'linkTerms', href: '/terms' },
-      { key: 'linkShipping', href: '/shipping' },
-      { key: 'linkRefund', href: '/refund' },
-    ],
-  },
 ] as const
 
 export default function SiteFooter() {
@@ -42,14 +33,6 @@ export default function SiteFooter() {
           <div>
             <p className="font-serif text-lg font-medium">{t('footer.name')}</p>
             <p className="mt-1 text-sm text-canvas/55">{t('footer.tagline')}</p>
-            <a
-              href="https://wa.me/918208737624"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-block text-sm text-canvas/80 transition-colors hover:text-accent-ring"
-            >
-              {t('footer.whatsapp')}
-            </a>
           </div>
 
           {COLS.map((col) => (

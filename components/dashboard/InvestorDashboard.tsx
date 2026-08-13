@@ -1,52 +1,87 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import type { Sector } from '@/lib/types'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { FounderApplication, Match, Sector } from '@/lib/types'
 import { SECTORS, labelSector } from '@/lib/options'
 import { useMockAuth } from '@/lib/MockAuthProvider'
-import { useMockData } from '@/lib/MockDataProvider'
-import { findMatch, isContactRevealed } from '@/lib/matching'
+import { api, apiEnabled } from '@/lib/api'
 import AccessDenied from './AccessDenied'
 import FounderCard from './FounderCard'
 
-// Investors see an admin-curated deal-flow: consented founders that have moved
-// past initial triage (under_review / shortlisted / matched), filtered to the
-// investor's sector & stage focus.
-const CURATED = new Set(['under_review', 'shortlisted', 'matched'])
+const backend = apiEnabled()
 
+type FounderRow = Partial<FounderApplication> & { id: string; contactRevealed?: boolean }
+
+// The backend already curates deal-flow server-side: only consented founders
+// past initial triage (under_review / shortlisted / matched), scoped to the
+// investor's sectors & stage focus. The client just renders what it returns.
 export default function InvestorDashboard() {
-  const { identity, currentUser, ready } = useMockAuth()
-  const { store, ready: dataReady, createMatch } = useMockData()
+  const { currentUser, token, ready } = useMockAuth()
   const [sectorFilter, setSectorFilter] = useState<Sector | 'all'>('all')
   const [q, setQ] = useState('')
+  const [rows, setRows] = useState<FounderRow[]>([])
+  const [matchMap, setMatchMap] = useState<Record<string, Match['status']>>({})
+  const [loading, setLoading] = useState(true)
+  const [notice, setNotice] = useState('')
 
-  const profile = useMemo(
-    () => store.investorProfiles.find((i) => i.userId === currentUser?.id || i.email === currentUser?.email),
-    [store.investorProfiles, currentUser],
+  const load = useCallback(async () => {
+    if (!backend || !token) {
+      setLoading(false)
+      return
+    }
+    setLoading(true)
+    setNotice('')
+    const [fRes, mRes] = await Promise.all([api.listFounders(token), api.myMatches(token)])
+    setLoading(false)
+    if (fRes.ok && Array.isArray(fRes.data)) {
+      setRows(fRes.data as FounderRow[])
+    } else {
+      const code = fRes.error && typeof fRes.error === 'object' ? fRes.error.code : undefined
+      setRows([])
+      if (code === 'no_profile') setNotice('Your investor profile is still being set up by our team. Please check back soon.')
+    }
+    if (mRes.ok && Array.isArray(mRes.data)) {
+      const map: Record<string, Match['status']> = {}
+      for (const m of mRes.data as { founderApplicationId: string; status: Match['status'] }[]) {
+        map[m.founderApplicationId] = m.status
+      }
+      setMatchMap(map)
+    }
+  }, [token])
+
+  useEffect(() => {
+    if (ready) load()
+  }, [ready, load])
+
+  const founders = useMemo(
+    () =>
+      rows
+        .filter((a) => (sectorFilter === 'all' ? true : a.sector === sectorFilter))
+        .filter(
+          (a) =>
+            !q.trim() ||
+            `${a.ventureName ?? ''} ${a.oneLiner ?? ''} ${a.problem ?? ''}`
+              .toLowerCase()
+              .includes(q.toLowerCase()),
+        ),
+    [rows, sectorFilter, q],
   )
 
-  if (!ready || !dataReady) {
+  const expressInterest = async (id: string) => {
+    if (!token) return
+    setMatchMap((m) => ({ ...m, [id]: 'interest' }))
+    await api.expressInterest(token, id)
+    load()
+  }
+
+  if (!ready || loading) {
     return <div className="px-5 py-24 text-center text-muted">Loading…</div>
   }
-  if (identity !== 'investor') {
+  if (currentUser?.role !== 'investor') {
     return <AccessDenied role="investor" label="Investor" />
   }
 
-  const sectors = profile?.sectors ?? []
-  const stageFocus = profile?.stageFocus ?? []
-
-  const founders = store.founderApplications
-    .filter((a) => a.consentShareWithMentors && CURATED.has(a.internalStatus))
-    .filter((a) => (sectors.length === 0 ? true : sectors.includes(a.sector)))
-    .filter((a) => (stageFocus.length === 0 ? true : stageFocus.includes(a.stage)))
-    .filter((a) => (sectorFilter === 'all' ? true : a.sector === sectorFilter))
-    .filter(
-      (a) =>
-        !q.trim() ||
-        `${a.ventureName ?? ''} ${a.oneLiner} ${a.problem}`.toLowerCase().includes(q.toLowerCase()),
-    )
-
-  const sectorChips: (Sector | 'all')[] = ['all', ...(sectors.length ? sectors : SECTORS.map((s) => s.value))]
+  const sectorChips: (Sector | 'all')[] = ['all', ...SECTORS.map((s) => s.value)]
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
@@ -84,30 +119,26 @@ export default function InvestorDashboard() {
         />
       </div>
 
-      {founders.length === 0 ? (
+      {notice ? (
+        <p className="mt-10 rounded-2xl border border-dashed border-line bg-surface/60 p-10 text-center text-sm text-muted">
+          {notice}
+        </p>
+      ) : founders.length === 0 ? (
         <p className="mt-10 rounded-2xl border border-dashed border-line bg-surface/60 p-10 text-center text-sm text-muted">
           No founders in your curated deal flow right now.
         </p>
       ) : (
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {founders.map((a) => {
-            const match = currentUser ? findMatch(store.matches, a.id, currentUser.id) : undefined
-            const revealed = currentUser ? isContactRevealed(store.matches, a.id, currentUser.id) : false
+            const status = matchMap[a.id]
+            const match = status ? ({ status } as Match) : undefined
             return (
               <FounderCard
                 key={a.id}
-                app={a}
+                app={a as FounderApplication}
                 match={match}
-                contactRevealed={revealed}
-                onExpressInterest={() =>
-                  currentUser &&
-                  createMatch({
-                    founderApplicationId: a.id,
-                    counterpartUserId: currentUser.id,
-                    type: 'investor',
-                    initiatedBy: 'investor',
-                  })
-                }
+                contactRevealed={!!a.contactRevealed}
+                onExpressInterest={() => expressInterest(a.id)}
               />
             )
           })}

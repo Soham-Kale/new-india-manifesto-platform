@@ -54,6 +54,13 @@ export const mr = {
     demoNote: 'फक्त डेमो — प्रत्यक्ष कोड पाठवला जात नाही. कोणतेही ६ अंक चालतात.',
     consoleNote: 'तुमच्या ईमेलवर ६-अंकी कोड पाठवला आहे.',
     roleLabel: 'या भूमिकेत साइन इन करा',
+    adminLink: 'ॲडमिन साइन इन',
+    adminTitle: 'ॲडमिन साइन इन',
+    adminStep: 'तुमचा ॲडमिन ईमेल आणि पासवर्ड टाका.',
+    passwordLabel: 'पासवर्ड',
+    adminSignIn: 'साइन इन',
+    backToOtp: 'ईमेल साइन इनकडे परत',
+    errAdmin: 'चुकीचा ईमेल किंवा पासवर्ड.',
   },
 
   dashboard: {

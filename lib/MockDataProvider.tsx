@@ -22,7 +22,7 @@ import type {
   FulfillmentStatus,
 } from './types'
 import { loadStore, saveStore, resetStore, emptyStore, newId, nowIso } from './store'
-import { api } from './api'
+import { api, apiEnabled } from './api'
 
 type NewFounder = Omit<FounderApplication, 'id' | 'createdAt' | 'internalStatus'>
 type NewMentor = Omit<MentorProfile, 'id' | 'createdAt' | 'approvalStatus'>
@@ -46,7 +46,7 @@ interface MockDataContextValue {
   store: StoreShape
   ready: boolean
   findFounderByEmail: (email: string) => FounderApplication | undefined
-  addFounderApplication: (input: NewFounder) => CreateResult<FounderApplication>
+  addFounderApplication: (input: NewFounder) => Promise<CreateResult<FounderApplication>>
   addMentorProfile: (input: NewMentor) => MentorProfile
   addInvestorProfile: (input: NewInvestor) => InvestorProfile
   addExpertProfile: (input: NewExpert) => ExpertProfile
@@ -87,46 +87,62 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
     [store.founderApplications],
   )
 
+  const makeFounderRecord = useCallback((input: NewFounder): FounderApplication => {
+    const record: FounderApplication = {
+      ...input,
+      id: newId('fa'),
+      internalStatus: 'received',
+      createdAt: nowIso(),
+    }
+    setStore((s) => ({ ...s, founderApplications: [record, ...s.founderApplications] }))
+    return record
+  }, [])
+
   const addFounderApplication = useCallback(
-    (input: NewFounder): CreateResult<FounderApplication> => {
+    async (input: NewFounder): Promise<CreateResult<FounderApplication>> => {
+      // When the backend is connected it is the source of truth for dedup
+      // (works across devices, not just this browser).
+      if (apiEnabled()) {
+        const res = await api.submitFounder({
+          fullName: input.fullName,
+          email: input.email,
+          phone: input.phone,
+          district: input.district,
+          ventureName: input.ventureName,
+          stage: input.stage,
+          sector: input.sector,
+          oneLiner: input.oneLiner,
+          problem: input.problem,
+          whatBuilt: input.whatBuilt,
+          teamSize: input.teamSize,
+          lookingFor: input.lookingFor,
+          capitalContext: input.capitalContext,
+          links: input.links,
+          videoUrl: input.videoUrl,
+          consentDataProcessing: input.consentDataProcessing,
+          consentShareWithMentors: input.consentShareWithMentors,
+          consentCampaignUpdates: input.consentCampaignUpdates,
+        })
+        const code = res.error && typeof res.error === 'object' ? res.error.code : undefined
+        if (res.status === 409 || code === 'already_applied') {
+          const existing =
+            store.founderApplications.find(
+              (a) => a.email.trim().toLowerCase() === input.email.trim().toLowerCase(),
+            ) ?? ({ ...input, id: '', internalStatus: 'received', createdAt: nowIso() } as FounderApplication)
+          return { ok: false, reason: 'already_applied', existing }
+        }
+        // Success, or a transient backend error → optimistically record locally.
+        return { ok: true, record: makeFounderRecord(input) }
+      }
+
+      // No backend configured: local (per-browser) dedup.
       const existing = store.founderApplications.find(
         (a) => a.email.trim().toLowerCase() === input.email.trim().toLowerCase(),
       )
       if (existing) return { ok: false, reason: 'already_applied', existing }
-      const record: FounderApplication = {
-        ...input,
-        id: newId('fa'),
-        internalStatus: 'received',
-        createdAt: nowIso(),
-      }
-      setStore((s) => ({
-        ...s,
-        founderApplications: [record, ...s.founderApplications],
-      }))
-      // Persist to the backend (no-op if NEXT_PUBLIC_API_URL is unset).
-      void api.submitFounder({
-        fullName: input.fullName,
-        email: input.email,
-        phone: input.phone,
-        district: input.district,
-        ventureName: input.ventureName,
-        stage: input.stage,
-        sector: input.sector,
-        oneLiner: input.oneLiner,
-        problem: input.problem,
-        whatBuilt: input.whatBuilt,
-        teamSize: input.teamSize,
-        lookingFor: input.lookingFor,
-        capitalContext: input.capitalContext,
-        links: input.links,
-        videoUrl: input.videoUrl,
-        consentDataProcessing: input.consentDataProcessing,
-        consentShareWithMentors: input.consentShareWithMentors,
-        consentCampaignUpdates: input.consentCampaignUpdates,
-      })
-      return { ok: true, record }
+      return { ok: true, record: makeFounderRecord(input) }
     },
-    [store.founderApplications],
+    [store.founderApplications, makeFounderRecord],
   )
 
   const addMentorProfile = useCallback((input: NewMentor): MentorProfile => {

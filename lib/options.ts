@@ -125,8 +125,10 @@ export function toPublicStatus(internal: InternalStatus): PublicStatus {
 }
 
 function makeLabeler<T extends string>(opts: Option<T>[]) {
-  const map = new Map(opts.map((o) => [o.value, o.label]))
-  return (v: T): string => map.get(v) ?? String(v)
+  const map = new Map<string, string>(opts.map((o) => [o.value, o.label]))
+  // Accepts a plain string too — values coming back from the API are strings,
+  // and an unknown value falls back to itself.
+  return (v: string): string => map.get(v) ?? String(v)
 }
 
 export const labelDistrict = makeLabeler(DISTRICTS)

@@ -52,6 +52,13 @@ export const en = {
     demoNote: 'Demo only — no real code is sent. Any 6 digits work.',
     consoleNote: 'A 6-digit code has been sent to your email.',
     roleLabel: 'Sign in as',
+    adminLink: 'Admin sign in',
+    adminTitle: 'Admin sign in',
+    adminStep: 'Enter your admin email and password.',
+    passwordLabel: 'Password',
+    adminSignIn: 'Sign in',
+    backToOtp: 'Back to email sign in',
+    errAdmin: 'Invalid email or password.',
   },
 
   dashboard: {
@@ -454,7 +461,7 @@ export const en = {
     mentorSubtitle: 'Share your expertise with builders across Maharashtra’s rural heartland.',
     mRoleCompany: 'Current role & company',
     mYears: 'Years of experience',
-    mCapacity: 'Founders you can mentor (Your capacity)',
+    mCapacity: 'Founders you can mentor',
     mExpertise: 'Areas of expertise',
     mExpertiseHint: 'Comma-separated, e.g. Supply chain, Branding, Operations',
     mSectors: 'Sectors you can help with',

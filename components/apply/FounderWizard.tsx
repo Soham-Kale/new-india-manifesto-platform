@@ -141,7 +141,7 @@ export default function FounderWizard() {
     goToStep(step + 1)
   }, [step, validateStep, goToStep])
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     const all = { ...validateStep(0), ...validateStep(1), ...validateStep(2) }
     if (!form.consentDataProcessing) all.consentDataProcessing = t('apply.vConsent')
     if (Object.keys(all).length > 0) {
@@ -154,29 +154,30 @@ export default function FounderWizard() {
     }
 
     setStatus('submitting')
-    window.setTimeout(() => {
-      const result = addFounderApplication({
-        userId: `usr_${form.email.split('@')[0]}`,
-        fullName: form.fullName,
-        email: form.email,
-        phone: form.phone,
-        district: form.district as District,
-        ventureName: form.ventureName.trim() || null,
-        stage: form.stage as FounderStage,
-        sector: form.sector as Sector,
-        oneLiner: form.oneLiner.trim(),
-        problem: form.problem.trim(),
-        whatBuilt: form.whatBuilt.trim(),
-        teamSize: Number(form.teamSize) || 1,
-        lookingFor: form.lookingFor,
-        capitalContext: form.capitalContext.trim(),
-        links: form.links.trim(),
-        videoUrl: form.videoUrl,
-        videoDuration: form.videoDuration,
-        consentShareWithMentors: form.consentShareWithMentors,
-        consentDataProcessing: form.consentDataProcessing,
-        consentCampaignUpdates: form.consentCampaignUpdates,
-      })
+    const result = await addFounderApplication({
+      userId: `usr_${form.email.split('@')[0]}`,
+      fullName: form.fullName,
+      email: form.email,
+      phone: form.phone,
+      district: form.district as District,
+      ventureName: form.ventureName.trim() || null,
+      stage: form.stage as FounderStage,
+      sector: form.sector as Sector,
+      oneLiner: form.oneLiner.trim(),
+      problem: form.problem.trim(),
+      whatBuilt: form.whatBuilt.trim(),
+      teamSize: Number(form.teamSize) || 1,
+      lookingFor: form.lookingFor,
+      capitalContext: form.capitalContext.trim(),
+      links: form.links.trim(),
+      videoUrl: form.videoUrl,
+      videoDuration: form.videoDuration,
+      consentShareWithMentors: form.consentShareWithMentors,
+      consentDataProcessing: form.consentDataProcessing,
+      consentCampaignUpdates: form.consentCampaignUpdates,
+    })
+    // Only start a session for a genuinely new application.
+    if (result.ok) {
       signIn({
         email: form.email,
         fullName: form.fullName,
@@ -184,9 +185,9 @@ export default function FounderWizard() {
         role: 'founder',
         district: form.district as District,
       })
-      setStatus(result.ok ? 'success' : 'already')
-      window.scrollTo({ top: 0 })
-    }, 1600)
+    }
+    setStatus(result.ok ? 'success' : 'already')
+    window.scrollTo({ top: 0 })
   }, [form, validateStep, goToStep, addFounderApplication, signIn, t])
 
   const stepValid = useMemo(() => {

@@ -24,12 +24,18 @@ function routeForRole(role: Role): string {
   return '/'
 }
 
+type Session =
+  | { accessToken: string; user: { id: string; email: string; fullName?: string; role: Role } }
+  | undefined
+
 export default function LoginPage() {
   const { signIn, switchRole, signInWithSession } = useMockAuth()
   const { t } = useT()
   const router = useRouter()
+  const [adminMode, setAdminMode] = useState(false)
   const [stage, setStage] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [role, setRole] = useState<Role>('founder')
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
@@ -74,9 +80,7 @@ export default function LoginPage() {
       setLoading(true)
       const res = await api.verifyOtp(email, otp.trim())
       setLoading(false)
-      const data = res.data as
-        | { accessToken: string; user: { id: string; email: string; fullName?: string; role: Role } }
-        | undefined
+      const data = res.data as Session
       if (!res.ok || !data?.accessToken) {
         setError(t('login.errVerify'))
         return
@@ -96,6 +100,33 @@ export default function LoginPage() {
     router.push(routeForRole(role))
   }
 
+  const adminSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!isEmail(email) || !password) {
+      setError(t('login.errAdmin'))
+      return
+    }
+    setError('')
+    setLoading(true)
+    const res = await api.adminLogin(email, password)
+    setLoading(false)
+    const data = res.data as Session
+    if (!res.ok || !data?.accessToken) {
+      setError(t('login.errAdmin'))
+      return
+    }
+    const user = signInWithSession({ accessToken: data.accessToken, user: data.user })
+    router.push(routeForRole(user.role))
+  }
+
+  const resetTo = (toAdmin: boolean) => {
+    setAdminMode(toAdmin)
+    setStage('email')
+    setOtp('')
+    setPassword('')
+    setError('')
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 py-16">
@@ -112,13 +143,47 @@ export default function LoginPage() {
             <ShieldCheck className="h-5 w-5" aria-hidden="true" />
           </span>
           <h1 className="mt-5 font-serif text-2xl font-medium tracking-tight text-ink">
-            {t('login.title')}
+            {adminMode ? t('login.adminTitle') : t('login.title')}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            {stage === 'email' ? t('login.emailStep') : `${t('login.otpStep')} ${email}.`}
+            {adminMode
+              ? t('login.adminStep')
+              : stage === 'email'
+                ? t('login.emailStep')
+                : `${t('login.otpStep')} ${email}.`}
           </p>
 
-          {stage === 'email' ? (
+          {adminMode ? (
+            <form onSubmit={adminSubmit} className="mt-6 space-y-4" noValidate>
+              <FormInput
+                label={t('login.emailLabel')}
+                name="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <FormInput
+                label={t('login.passwordLabel')}
+                name="password"
+                type="password"
+                required
+                value={password}
+                error={error}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? t('login.verifying') : t('login.adminSignIn')}
+              </Button>
+              <button
+                type="button"
+                onClick={() => resetTo(false)}
+                className="w-full text-center text-sm text-muted hover:text-ink"
+              >
+                {t('login.backToOtp')}
+              </button>
+            </form>
+          ) : stage === 'email' ? (
             <form onSubmit={sendCode} className="mt-6 space-y-4" noValidate>
               <FormInput
                 label={t('login.emailLabel')}
@@ -172,9 +237,21 @@ export default function LoginPage() {
             </form>
           )}
 
-          <p className="mt-6 rounded-lg bg-accent-soft/60 px-3 py-2 text-center text-xs text-muted">
-            {backend ? t('login.consoleNote') : t('login.demoNote')}
-          </p>
+          {!adminMode && (
+            <p className="mt-6 rounded-lg bg-accent-soft/60 px-3 py-2 text-center text-xs text-muted">
+              {backend ? t('login.consoleNote') : t('login.demoNote')}
+            </p>
+          )}
+
+          {backend && !adminMode && stage === 'email' && (
+            <button
+              type="button"
+              onClick={() => resetTo(true)}
+              className="mt-4 w-full text-center text-xs font-medium text-muted hover:text-accent"
+            >
+              {t('login.adminLink')}
+            </button>
+          )}
         </div>
       </div>
     </div>

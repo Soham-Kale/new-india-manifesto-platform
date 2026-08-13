@@ -49,12 +49,8 @@ export const api = {
   submitExpert: (p: Record<string, unknown>) => request('POST', '/applications/expert', p),
   submitPledge: (p: Record<string, unknown>) => request('POST', '/pledge', p),
 
-  // Auth (email OTP → JWT).
-  requestOtp: (email: string) => request('POST', '/auth/otp/request', { email }),
-  verifyOtp: (email: string, code: string) => request('POST', '/auth/otp/verify', { email, code }),
-  adminLogin: (email: string, password: string) =>
-    request('POST', '/auth/admin/login', { email, password }),
-  me: (token: string) => request('GET', '/auth/me', undefined, token),
+  // Auth is handled by Better Auth (see lib/auth-client.ts). These data calls
+  // pass the Better Auth bearer token (from useMockAuth().token) in the header.
 
   // A founder's own application status (public status only).
   founderStatus: (token: string) => request('GET', '/applications/founder/me', undefined, token),

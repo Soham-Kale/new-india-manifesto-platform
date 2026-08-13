@@ -5,16 +5,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, ShieldCheck } from 'lucide-react'
 import type { Role } from '@/lib/types'
-import { useMockAuth } from '@/lib/MockAuthProvider'
-import { api, apiEnabled } from '@/lib/api'
+import { authClient } from '@/lib/auth-client'
 import { isEmail } from '@/lib/validation'
 import { useT } from '@/lib/i18n'
 import Button from '@/components/ui/Button'
 import FormInput from '@/components/ui/FormInput'
-import SelectField from '@/components/ui/SelectField'
 import LangToggle from '@/components/site/LangToggle'
-
-const backend = apiEnabled()
 
 function routeForRole(role: Role): string {
   if (role === 'admin') return '/admin'
@@ -24,30 +20,16 @@ function routeForRole(role: Role): string {
   return '/'
 }
 
-type Session =
-  | { accessToken: string; user: { id: string; email: string; fullName?: string; role: Role } }
-  | undefined
-
 export default function LoginPage() {
-  const { signIn, switchRole, signInWithSession } = useMockAuth()
   const { t } = useT()
   const router = useRouter()
   const [adminMode, setAdminMode] = useState(false)
   const [stage, setStage] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState<Role>('founder')
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
-  // Mock-fallback roles only (no admin — real admin access is backend-verified).
-  const ROLE_OPTIONS = [
-    { value: 'founder', label: t('nav.applyFounder') },
-    { value: 'mentor', label: t('nav.applyMentor') },
-    { value: 'investor', label: t('nav.applyInvestor') },
-    { value: 'expert', label: t('nav.applyExpert') },
-  ]
 
   const sendCode = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -56,48 +38,31 @@ export default function LoginPage() {
       return
     }
     setError('')
-    if (backend) {
-      setLoading(true)
-      const res = await api.requestOtp(email)
-      setLoading(false)
-      if (!res.ok) {
-        setError(t('login.errSend'))
-        return
-      }
+    setLoading(true)
+    const { error: err } = await authClient.emailOtp.sendVerificationOtp({ email, type: 'sign-in' })
+    setLoading(false)
+    if (err) {
+      setError(t('login.errSend'))
+      return
     }
     setStage('otp')
   }
 
   const verify = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (backend) {
-      if (!/^\d{6}$/.test(otp.trim())) {
-        setError(t('login.errCode'))
-        return
-      }
-      setError('')
-      setLoading(true)
-      const res = await api.verifyOtp(email, otp.trim())
-      setLoading(false)
-      const data = res.data as Session
-      if (!res.ok || !data?.accessToken) {
-        setError(t('login.errVerify'))
-        return
-      }
-      const user = signInWithSession({ accessToken: data.accessToken, user: data.user })
-      router.push(routeForRole(user.role))
-      return
-    }
-
-    // Mock fallback (no backend configured): role is chosen locally.
-    if (otp.trim().length < 4) {
+    if (!/^\d{6}$/.test(otp.trim())) {
       setError(t('login.errCode'))
       return
     }
-    if (role === 'admin') switchRole('admin')
-    else signIn({ email, role })
-    router.push(routeForRole(role))
+    setError('')
+    setLoading(true)
+    const { data, error: err } = await authClient.signIn.emailOtp({ email, otp: otp.trim() })
+    setLoading(false)
+    if (err || !data?.user) {
+      setError(t('login.errVerify'))
+      return
+    }
+    router.push(routeForRole((data.user.role as Role) ?? 'founder'))
   }
 
   const adminSubmit = async (e: React.FormEvent) => {
@@ -108,15 +73,13 @@ export default function LoginPage() {
     }
     setError('')
     setLoading(true)
-    const res = await api.adminLogin(email, password)
+    const { data, error: err } = await authClient.signIn.email({ email, password })
     setLoading(false)
-    const data = res.data as Session
-    if (!res.ok || !data?.accessToken) {
+    if (err || !data?.user) {
       setError(t('login.errAdmin'))
       return
     }
-    const user = signInWithSession({ accessToken: data.accessToken, user: data.user })
-    router.push(routeForRole(user.role))
+    router.push(routeForRole((data.user.role as Role) ?? 'founder'))
   }
 
   const resetTo = (toAdmin: boolean) => {
@@ -195,15 +158,6 @@ export default function LoginPage() {
                 hint={t('login.emailHint')}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              {!backend && (
-                <SelectField
-                  label={t('login.roleLabel')}
-                  name="role"
-                  options={ROLE_OPTIONS}
-                  value={role}
-                  onChange={(v) => setRole(v as Role)}
-                />
-              )}
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? t('login.sending') : t('login.sendCode')}
               </Button>
@@ -239,11 +193,11 @@ export default function LoginPage() {
 
           {!adminMode && (
             <p className="mt-6 rounded-lg bg-accent-soft/60 px-3 py-2 text-center text-xs text-muted">
-              {backend ? t('login.consoleNote') : t('login.demoNote')}
+              {t('login.consoleNote')}
             </p>
           )}
 
-          {backend && !adminMode && stage === 'email' && (
+          {!adminMode && stage === 'email' && (
             <button
               type="button"
               onClick={() => resetTo(true)}

@@ -100,23 +100,30 @@ export default function AdminRoom() {
     if (tab !== 'overview') loadTab(tab)
   }
 
-  // ── Mutations ───────────────────────────────────────────────────────────
-  const patchFounder = async (id: string, status: string) => {
-    if (!token) return
+  // ── Mutations (commit only when the admin clicks "Update") ───────────────
+  // Each returns true on success; rows update only after the backend confirms.
+  const commitFounder = async (id: string, status: string): Promise<boolean> => {
+    if (!token) return false
+    const res = await api.adminSetFounderStatus(token, id, status)
+    if (!res.ok) return false
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, internalStatus: status } : r)))
-    await api.adminSetFounderStatus(token, id, status)
     loadOverview()
+    return true
   }
-  const patchApproval = async (kind: 'mentor' | 'investor' | 'expert', id: string, status: string) => {
-    if (!token) return
+  const commitApproval = async (kind: 'mentor' | 'investor' | 'expert', id: string, status: string): Promise<boolean> => {
+    if (!token) return false
+    const res = await api.adminSetApproval(token, kind, id, status)
+    if (!res.ok) return false
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, approvalStatus: status } : r)))
-    await api.adminSetApproval(token, kind, id, status)
     loadOverview()
+    return true
   }
-  const patchMatch = async (id: string, status: string) => {
-    if (!token) return
+  const commitMatch = async (id: string, status: string): Promise<boolean> => {
+    if (!token) return false
+    const res = await api.adminSetMatchStatus(token, id, status)
+    if (!res.ok) return false
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, status } : r)))
-    await api.adminSetMatchStatus(token, id, status)
+    return true
   }
 
   const counts = useMemo(() => {
@@ -302,10 +309,10 @@ export default function AdminRoom() {
                             </span>
                           </Td>
                           <Td>
-                            <StatusSelect
-                              value={str(a.internalStatus)}
+                            <StatusCell
+                              current={str(a.internalStatus)}
                               options={INTERNAL_STATUSES}
-                              onChange={(v) => patchFounder(str(a.id), v)}
+                              onCommit={(v) => commitFounder(str(a.id), v)}
                             />
                           </Td>
                         </tr>
@@ -324,7 +331,7 @@ export default function AdminRoom() {
                           <Td className="max-w-[14rem] text-xs">{arr(m.expertiseAreas).join(', ')}</Td>
                           <Td className="text-xs">{arr(m.sectors).map(labelSector).join(', ')}</Td>
                           <Td>{num(m.capacity)}</Td>
-                          <Td><StatusSelect value={str(m.approvalStatus)} options={APPROVAL_STATUSES} onChange={(v) => patchApproval('mentor', str(m.id), v)} /></Td>
+                          <Td><StatusCell current={str(m.approvalStatus)} options={APPROVAL_STATUSES} onCommit={(v) => commitApproval('mentor', str(m.id), v)} /></Td>
                         </tr>
                       ))}
                   </Table>
@@ -341,7 +348,7 @@ export default function AdminRoom() {
                           <Td>{labelInvestorType(str(i.investorType))}</Td>
                           <Td className="text-xs">{num(i.ticketMin).toLocaleString('en-IN')}–{num(i.ticketMax).toLocaleString('en-IN')}</Td>
                           <Td className="text-xs">{arr(i.sectors).map(labelSector).join(', ')}</Td>
-                          <Td><StatusSelect value={str(i.approvalStatus)} options={APPROVAL_STATUSES} onChange={(v) => patchApproval('investor', str(i.id), v)} /></Td>
+                          <Td><StatusCell current={str(i.approvalStatus)} options={APPROVAL_STATUSES} onCommit={(v) => commitApproval('investor', str(i.id), v)} /></Td>
                         </tr>
                       ))}
                   </Table>
@@ -357,7 +364,7 @@ export default function AdminRoom() {
                           <Td><p className="text-xs text-muted">{str(e.email)}</p><p className="text-xs text-muted">{str(e.phone)}</p></Td>
                           <Td>{str(e.domain)}</Td>
                           <Td className="text-xs">{arr(e.contribution).map(labelContribution).join(', ')}</Td>
-                          <Td><StatusSelect value={str(e.approvalStatus)} options={APPROVAL_STATUSES} onChange={(v) => patchApproval('expert', str(e.id), v)} /></Td>
+                          <Td><StatusCell current={str(e.approvalStatus)} options={APPROVAL_STATUSES} onCommit={(v) => commitApproval('expert', str(e.id), v)} /></Td>
                         </tr>
                       ))}
                   </Table>
@@ -387,10 +394,10 @@ export default function AdminRoom() {
                         <Td className="capitalize">{str(m.type)}</Td>
                         <Td className="capitalize text-muted">{str(m.initiatedBy)}</Td>
                         <Td>
-                          <StatusSelect
-                            value={str(m.status)}
+                          <StatusCell
+                            current={str(m.status)}
                             options={MATCH_STATUSES}
-                            onChange={(v) => patchMatch(str(m.id), v)}
+                            onCommit={(v) => commitMatch(str(m.id), v)}
                           />
                         </Td>
                       </tr>
@@ -486,26 +493,72 @@ function Td({ children, className = '' }: { children: React.ReactNode; className
   return <td className={`px-4 py-3 text-ink ${className}`}>{children}</td>
 }
 
-function StatusSelect({
-  value,
+// Dropdown that does NOT auto-save. The admin picks a status, an "Update" button
+// appears, and only on click does it persist to the DB (and email the applicant).
+function StatusCell({
+  current,
   options,
-  onChange,
+  onCommit,
 }: {
-  value: string
+  current: string
   options: { value: string; label: string }[]
-  onChange: (v: string) => void
+  onCommit: (v: string) => Promise<boolean>
 }) {
+  const [value, setValue] = useState(current)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [failed, setFailed] = useState(false)
+
+  // Re-sync when the saved value changes (after a successful commit or a reload).
+  useEffect(() => {
+    setValue(current)
+  }, [current])
+
+  const changed = value !== current
+
+  const commit = async () => {
+    setSaving(true)
+    setSaved(false)
+    setFailed(false)
+    const ok = await onCommit(value)
+    setSaving(false)
+    if (ok) {
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+    } else {
+      setFailed(true)
+    }
+  }
+
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-ink focus:border-ink"
-    >
-      {options.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
+    <div className="flex items-center gap-2">
+      <select
+        value={value}
+        onChange={(e) => {
+          setValue(e.target.value)
+          setFailed(false)
+        }}
+        className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-ink focus:border-ink"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+
+      {changed && !saving && (
+        <button
+          type="button"
+          onClick={commit}
+          className="rounded-lg bg-ink px-2.5 py-1.5 text-xs font-medium text-canvas transition hover:bg-ink/90"
+        >
+          Update
+        </button>
+      )}
+      {saving && <span className="text-xs text-muted">Updating…</span>}
+      {saved && !changed && <span className="text-xs font-medium text-success">✓ Saved</span>}
+      {failed && <span className="text-xs font-medium text-red-600">Failed — retry</span>}
+    </div>
   )
 }

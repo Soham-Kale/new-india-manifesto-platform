@@ -296,7 +296,7 @@ export const en = {
     progTitle: 'Support that recycles, by design',
     pillar1Title: 'Revolving, not a giveaway',
     pillar1Desc:
-      'The Village Venture Fund offers circular micro-equity (₹10k–₹2L) that is repaid and recycled — so support keeps reaching the next founder.',
+      'The Village Venture Fund offers circular micro-equity that is repaid and recycled — so support keeps reaching the next founder.',
     pillar2Title: 'Criteria-based & transparent',
     pillar2Desc:
       'Support is earned on clear criteria and accountability. We connect founders to mentors and vetted investors — we do not hand out open grants.',

@@ -8,12 +8,24 @@ const CHAPTER_KEYS = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8', 'c
 export default function BookIntro() {
   const { t } = useT()
   return (
-    <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">{t('book.eyebrow')}</p>
-      <h1 className="mt-3 font-display text-4xl font-bold uppercase leading-[1.02] tracking-tight text-ink sm:text-5xl">
+    <div >
+      {/* Eyebrow shown on desktop only; on mobile it's dropped to save space. */}
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent lg:block">
+        {t('book.eyebrow')}
+      </p>
+      
+      <h1 className="font-display text-4xl font-bold uppercase leading-[1.02] tracking-tight text-ink sm:text-5xl lg:mt-3">
         {t('book.title')}
       </h1>
       <p className="mt-2 text-lg text-muted">{t('book.subtitle')}</p>
+
+      {/* Mobile-only cover, shown right under the author line. On desktop the
+          cover lives in the sticky buy panel instead (see book/page.tsx). */}
+      <div className="mt-6 lg:hidden">
+        <div className="mx-auto w-full max-w-[240px] overflow-hidden rounded-2xl border border-line shadow-lift">
+          <img src="/images/book-cover.jpg" alt={t('book.title')} className="w-full" />
+        </div>
+      </div>
 
       <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-muted">{t('book.synopsis')}</p>
 

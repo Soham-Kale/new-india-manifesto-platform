@@ -12,7 +12,6 @@ import {
   Target,
 } from 'lucide-react'
 import { useT } from '@/lib/i18n'
-import { JourneyTimeline } from '@/components/site/sections'
 
 const ROLES = [
   { icon: Rocket, key: 'roleFounder', href: '/apply/founder' },
@@ -87,9 +86,6 @@ export default function InitiativeContent() {
           </div>
         </div>
       </section>
-
-      {/* Journey timeline */}
-      <JourneyTimeline />
 
       {/* Role lanes */}
       <section className="border-b border-line bg-surface/60">

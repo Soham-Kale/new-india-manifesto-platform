@@ -6,6 +6,7 @@ import {
   VisionBand,
   ContactSection,
   InvitationCTA,
+  JourneyTimeline,
 } from '@/components/site/sections'
 import RohanHero from '@/components/site/RohanHero'
 
@@ -20,6 +21,7 @@ export default function RohanPage() {
     <>
       <RohanHero />
       <AboutStory />
+      <JourneyTimeline />
       <AuthorVideo />
       <VisionBand />
       <WorkGrid />

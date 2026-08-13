@@ -331,7 +331,7 @@ export function AboutStory() {
         <div className="order-1 lg:order-2">
           <div className="overflow-hidden rounded-3xl shadow-lift ring-1 ring-ink/10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/about.jpg" alt={t('home.about.title')} className="aspect-[16/10] w-full object-cover" />
+            <img src="/images/rohan-about-1.jpg" alt={t('home.about.title')} className="aspect-[4/5] w-full object-cover object-top" />
           </div>
         </div>
       </div>
@@ -575,7 +575,7 @@ export function ContactSection() {
 
           <div className="relative overflow-hidden rounded-3xl shadow-lift ring-1 ring-white/10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/portrait.jpg" alt={t('home.hero.author')} className="aspect-[4/5] w-full object-cover object-top" />
+            <img src="/images/rohan-about-2.jpg" alt={t('home.hero.author')} className="aspect-[4/5] w-full object-cover object-top" />
           </div>
         </div>
       </div>

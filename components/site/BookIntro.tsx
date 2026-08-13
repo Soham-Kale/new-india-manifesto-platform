@@ -4,7 +4,6 @@ import { Check } from 'lucide-react'
 import { useT } from '@/lib/i18n'
 
 const CHAPTER_KEYS = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8', 'ch9', 'ch10'] as const
-const TAKEAWAY_KEYS = ['takeaway1', 'takeaway2', 'takeaway3'] as const
 
 export default function BookIntro() {
   const { t } = useT()
@@ -17,15 +16,6 @@ export default function BookIntro() {
       <p className="mt-2 text-lg text-muted">{t('book.subtitle')}</p>
 
       <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-muted">{t('book.synopsis')}</p>
-
-      <ul className="mt-6 max-w-xl space-y-2.5">
-        {TAKEAWAY_KEYS.map((k) => (
-          <li key={k} className="flex items-start gap-2.5 text-[15px] leading-relaxed text-ink">
-            <Check className="mt-1 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
-            {t(`book.${k}`)}
-          </li>
-        ))}
-      </ul>
 
       <div className="mt-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">

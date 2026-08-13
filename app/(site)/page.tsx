@@ -13,11 +13,11 @@ export default function HomePage() {
     <>
       <Hero />
       <BookFeature />
+      <InvitationCTA />
+      <VisionBand />
       <FunnelSteps />
       <CommunityEvents />
-      <VisionBand />
       <WorkGrid />
-      <InvitationCTA />
     </>
   )
 }

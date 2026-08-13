@@ -65,7 +65,7 @@ export default function SiteHeader() {
         hidden ? '-translate-y-[150%]' : 'translate-y-0'
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 mb-2">
         {/* Wordmark */}
         <Link
           href="/"

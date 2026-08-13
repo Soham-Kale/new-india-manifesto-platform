@@ -74,7 +74,7 @@ export function Hero() {
         className="absolute inset-x-0 top-0 h-40 bg-linear-to-b from-night/90 to-transparent"
       />
       <div className="bg-night-aura">
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-16 pt-32 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pb-24 lg:pt-40">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-16 pt-12 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pb-24 lg:pt-12">
           {/* Left — the argument */}
           <div className="animate-fade-up">
             <Eyebrow tone="light">{t('home.hero.eyebrow')}</Eyebrow>
@@ -95,7 +95,7 @@ export function Hero() {
             </div> */}
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
-              <PillLink href="/pledge" variant="light">
+              <PillLink href="/apply/founder" variant="light">
                 {t('home.hero.ctaPledge')}
               </PillLink>
               <PillLink href="/book" variant="outline">
@@ -104,10 +104,6 @@ export function Hero() {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/60">
-              <span className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-accent-ring" aria-hidden="true" />
-                {t('home.hero.location')}
-              </span>
               <span className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-accent-ring" aria-hidden="true" />
                 {t('home.hero.byline')}
@@ -248,7 +244,7 @@ export function FunnelSteps() {
 }
 
 /* ============================================================
-   COMMUNITY EVENTS
+  COMMUNITY EVENTS
    ============================================================ */
 const EVENTS = [
   { img: '/images/social-activities.jpg', key: 'e1' },
@@ -522,7 +518,7 @@ export function AuthorVideo() {
 }
 
 /* ============================================================
-   CONTACT (used on /rohan)
+  CONTACT (used on /rohan)
    ============================================================ */
 const CONTACTS = [
   { icon: Phone, key: 'call', value: '+91 8208737624', href: 'tel:+918208737624' },
@@ -588,7 +584,7 @@ export function ContactSection() {
 }
 
 /* ============================================================
-   INVITATION CTA
+  INVITATION CTA
    ============================================================ */
 const INVITE = [
   { icon: Sprout, key: 'i1' },
@@ -634,7 +630,7 @@ export function InvitationCTA() {
 }
 
 /* ============================================================
-   JOIN BAND — footer CTA using the book-cover artwork
+  JOIN BAND — footer CTA using the book-cover artwork
    ============================================================ */
 export function JoinBand() {
   const { t } = useT()
@@ -650,7 +646,6 @@ export function JoinBand() {
       {/* strong, even dark overlay so the white text stays clearly readable */}
       <span aria-hidden="true" className="absolute inset-0 bg-night/80" />
       <div className="relative mx-auto max-w-4xl px-5 py-20 text-center sm:px-8 lg:py-24">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">{t('home.join.eyebrow')}</p>
         <h2 className="mx-auto mt-4 max-w-2xl font-display text-3xl font-bold leading-tight tracking-tight text-balance sm:text-5xl">
           {t('home.join.title')}
         </h2>

@@ -20,7 +20,6 @@ export default function BookPage() {
           {/* Right: sticky buy panel */}
           <div className="lg:sticky lg:top-24 lg:self-start">
             <div className="mb-5 overflow-hidden rounded-2xl border border-line shadow-lift">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/book-cover.jpg"
                 alt="The New India Manifesto: Going Beyond Possible"
